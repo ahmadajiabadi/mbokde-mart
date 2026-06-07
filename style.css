@@ -509,13 +509,11 @@ main {
     display: flex;
     flex-direction: column;
     visibility: hidden;
-    pointer-events: none;
 }
 
 .cart-drawer.open {
     right: 0;
     visibility: visible;
-    pointer-events: auto;
 }
 
 .cart-header {
@@ -928,13 +926,11 @@ textarea.form-input {
     display: flex;
     flex-direction: column;
     visibility: hidden;
-    pointer-events: none;
 }
 
 .bottom-sheet.open {
     bottom: 0;
     visibility: visible;
-    pointer-events: auto;
 }
 
 .bottom-sheet-drag-handle {
