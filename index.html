@@ -1132,12 +1132,32 @@
     <!-- Supabase Client Library CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Premium Modular Script Files (Linked Sequentially) -->
-    <script src="config.js"></script>
-    <script src="utils.js"></script>
-    <script src="cart.js"></script>
-    <script src="checkout.js"></script>
-    <script src="seller.js"></script>
-    <script src="app.js"></script>
+    <!-- ============================================================ -->
+    <!-- MODULAR FILE ARCHITECTURE (MFA) — Mbokde Mart v2.0         -->
+    <!-- Dependensi Global (harus di-load pertama)                   -->
+    <!-- ============================================================ -->
+    <script src="config.js"></script>       <!-- Global state, konstanta, Supabase client -->
+    <script src="utils.js"></script>        <!-- formatRupiah, showToast, toggleBodyScroll -->
+    <script src="cart.js"></script>         <!-- renderCart, calculateCheckedSubtotal, filterProducts -->
+
+    <!-- Modul Katalog & Produk -->
+    <script src="js/catalog.js"></script>           <!-- renderProducts, bottomSheet, carousel -->
+
+    <!-- Modul Checkout & Pembayaran -->
+    <script src="js/checkout-stage.js"></script>    <!-- navigateToStage, calculateCosts, voucher -->
+    <script src="js/payment.js"></script>            <!-- Midtrans Snap, polling, simulasi -->
+    <script src="js/maps.js"></script>               <!-- Leaflet, Biteship, geocoding, pilihan kurir -->
+
+    <!-- Modul Riwayat & Pelacakan Pesanan -->
+    <script src="js/orders.js"></script>             <!-- riwayat, tracking, payPending -->
+
+    <!-- Modul Dashboard Penjual -->
+    <script src="js/seller-auth.js"></script>        <!-- login, logout, navigasi tab admin -->
+    <script src="js/seller-orders.js"></script>      <!-- load/filter/update pesanan admin -->
+    <script src="js/seller-products.js"></script>    <!-- CRUD produk, upload gambar -->
+    <script src="js/seller-settings.js"></script>    <!-- pengaturan toko, voucher, QRIS upload -->
+
+    <!-- Events & Init (harus di-load TERAKHIR) -->
+    <script src="js/events.js"></script>             <!-- setupEventListeners, initTheme, Realtime -->
 </body>
 </html>
