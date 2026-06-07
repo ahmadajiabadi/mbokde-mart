@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mbokde Mart - Toko Sayur Segar Keluarga Anda</title>
+    <!-- Meta SEO -->
+    <meta name="description" content="Belanja sayur segar harian di Mbokde Mart. Dukungan peta lokasi interaktif, metode COD, Virtual Account, dan QRIS gratis tanpa biaya server.">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/color/48/000000/salad.png">
+    
+
+
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="style.css">
+    <!-- Theme Detection Script -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem("mbokde_theme") || "light";
+            if (theme === "dark") {
+                document.documentElement.classList.add("dark-mode");
+                document.body ? document.body.classList.add("dark-mode") : document.addEventListener("DOMContentLoaded", () => document.body.classList.add("dark-mode"));
+            }
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- Header / Navigation -->
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo" id="headerLogo">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 8C15 6 12.3 5.4 9.6 5.9C8.3 4.2 6.1 3 3.5 3C3.2 3 3 3.2 3 3.5C3 6.1 4.2 8.3 5.9 9.6C5.4 12.3 6 15 8 17C10.2 19.2 13.5 19.6 16.1 18.2C17.3 19.7 19.3 20.7 21.5 20.9C21.8 20.9 22 20.7 22 20.4C22 18.2 21 16.2 19.5 15C20.8 12.4 20.3 9.1 17 8ZM5.2 5.2C6.9 5.6 8.3 6.7 9.1 8.2C7.3 7.8 5.7 6.8 5.2 5.2ZM15.6 15.6C14 17.2 11.4 17.2 9.8 15.6C8.2 14 8.2 11.4 9.8 9.8C11.4 8.2 14 8.2 15.6 9.8C17.2 11.4 17.2 14 15.6 15.6ZM18.8 18.8C18.3 17.2 17.3 15.8 15.8 15C17.3 14.2 18.4 12.8 18.8 11.2C19.7 12.6 19.7 14.5 18.8 18.8Z" />
+                </svg>
+                Mbokde<span>Mart</span>
+            </a>
+            
+            <div class="search-bar">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Cari sayur bayam, cabai, bawang merah brebes...">
+            </div>
+
+            <div class="header-actions">
+                <button class="header-btn" id="themeToggleBtn" style="padding: 0.6rem; border-radius: 50%; min-width: 38px; display: flex; align-items: center; justify-content: center; font-size: 1rem;" title="Ubah Tema">
+                    🌙
+                </button>
+                <button class="header-btn" id="myOrdersBtn" style="position: relative; display: inline-flex; align-items: center; gap: 0.25rem;">
+                    📋 Pesanan Saya <span id="myOrdersBadge" style="display: none; background: var(--accent); color: white; border-radius: 50%; padding: 0.15rem 0.4rem; font-size: 0.7rem; font-weight: 800; min-width: 18px; text-align: center; line-height: 1;">0</span>
+                </button>
+                <button class="header-btn" id="sellerDashboardBtn" style="border-color: var(--accent); color: var(--accent);">
+                    ⚙️ Kelola Toko
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        
+        <!-- Hero Promo Banner -->
+        <section class="hero">
+            <div class="hero-content">
+                <span class="hero-tag">🥬 Sayur Segar Keluarga Anda</span>
+                <h1>Segar Setiap Hari, Langsung ke Rumah</h1>
+                <p>Belanja aneka sayuran segar, buah, bumbu harian pilihan keluarga langsung dari petani lokal. Cepat, murah, dan higienis.</p>
+                <a href="#katalog" class="hero-btn">
+                    Mulai Belanja Sayur
+                    <svg fill="none" stroke="currentColor" width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </div>
+        </section>
+
+        <!-- Kategori Chips Section -->
+        <section class="categories-container" id="katalog">
+            <h2 class="categories-title">Pilih Kategori Belanja</h2>
+            <div class="category-list" id="categoryList">
+                <div class="category-chip active" data-category="semua">🌱 Semua Sayur</div>
+                <div class="category-chip" data-category="daun">🥬 Sayur Daun</div>
+                <div class="category-chip" data-category="buah">🍅 Sayur Buah</div>
+                <div class="category-chip" data-category="bumbu">🧄 Bumbu & Rempah</div>
+                <div class="category-chip" data-category="sembako">🌾 Sembako & Pelengkap</div>
+            </div>
+        </section>
+
+        <!-- Product Grid Section -->
+        <section class="products-section">
+            <div class="products-section-header">
+                <h2 class="products-title" id="catalogTitle">Semua Produk</h2>
+            </div>
+            <div class="product-grid" id="productGrid">
+                <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--gray-500);">
+                    Memuat produk segar Mbokde Mart...
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Floating Bottom Cart Bar (Sayurbox-style) -->
+    <div class="bottom-cart-bar" id="bottomCartBar">
+        <div class="bottom-cart-left">
+            <span class="bottom-cart-title">Lihat Keranjang Belanja</span>
+            <span class="bottom-cart-price" id="bottomCartPrice">Rp 0</span>
+        </div>
+        <div class="bottom-cart-right" id="bottomCartBadge">
+            0 Barang
+        </div>
+    </div>
+
+    <!-- Slide-out Cart Drawer -->
+    <div class="cart-drawer-overlay" id="cartOverlay"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h2 class="cart-title">🛒 Keranjang Sayur</h2>
+            <button class="close-btn" id="closeCartBtn" aria-label="Tutup Keranjang">
+                <svg fill="none" stroke="currentColor" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Checklist All Header -->
+        <div id="cartChecklistHeader" style="padding: 0.75rem 1.5rem 0.25rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--gray-100); font-size: 0.85rem; color: var(--gray-500);">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="selectAllCartCheckbox" class="cart-item-checkbox" checked>
+                <span>Pilih Semua Barang</span>
+            </label>
+            <span id="checkedCountText">0 Terpilih</span>
+        </div>
+
+        <div class="cart-items-list" id="cartItemsList"></div>
+
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total Terpilih:</span>
+                <span class="cart-total-price" id="cartTotalPrice">Rp 0</span>
+            </div>
+            <button class="checkout-btn" id="checkoutBtn">Lanjut ke Pembayaran</button>
+        </div>
+    </div>
+
+    <!-- Sayurbox Product Detail Bottom Sheet -->
+    <div class="bottom-sheet-overlay" id="bottomSheetOverlay"></div>
+    <div class="bottom-sheet" id="productBottomSheet">
+        <div class="bottom-sheet-drag-handle" id="dragHandle"></div>
+        <div class="bottom-sheet-content">
+            <!-- Carousel Slider -->
+            <div class="carousel-container">
+                <div class="carousel-slides" id="carouselSlides"></div>
+                <div class="carousel-dots" id="carouselDots"></div>
+            </div>
+            
+            <!-- Product Info -->
+            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 0.5rem; gap: 0.5rem;">
+                <h3 id="sheetProdName" style="font-size:1.25rem; font-weight:800; line-height: 1.3;">Nama Sayuran</h3>
+                <span id="sheetStockBadge" style="background:#e6f6ec; color:#008a3e; padding:0.25rem 0.6rem; border-radius:50px; font-size:0.75rem; font-weight:700; white-space: nowrap;">Tersedia Besok</span>
+            </div>
+            
+            <div id="sheetProdPrice" style="font-size:1.45rem; font-weight:800; color:var(--primary); margin-bottom: 0.5rem;">Rp 0</div>
+            <p id="sheetProdDesc" style="font-size:0.85rem; color:var(--gray-500); line-height:1.45; margin-bottom:1.25rem;">Keterangan detail sayuran...</p>
+            
+            <!-- Variant Choices -->
+            <h4 class="variant-title">Pilih Varian</h4>
+            <div class="variant-grid" id="sheetVariantGrid"></div>
+
+            <!-- Qty Counter -->
+            <div class="qty-row">
+                <span class="qty-row-label">Pilih Jumlah</span>
+                <div class="qty-counter">
+                    <button class="qty-btn" id="sheetDecQtyBtn">-</button>
+                    <span class="qty-val" id="sheetQtyVal">1</span>
+                    <button class="qty-btn" id="sheetIncQtyBtn">+</button>
+                </div>
+            </div>
+
+            <!-- Add Button -->
+            <button class="checkout-btn" id="sheetAddCartBtn" style="margin-top: 1.5rem;">Tambah Ke Keranjang</button>
+        </div>
+    </div>
+
+    <!-- Modal Checkout Form (Multistage checkout) -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="cart-title" id="modalTitle">📝 Tahap 1: Informasi Pengiriman</h2>
+                <button class="close-btn" id="closeCheckoutBtn" aria-label="Tutup Form">
+                    <svg fill="none" stroke="currentColor" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                
+                <!-- STAGE 1: DELIVERY FORM AND MAP PICKER -->
+                <div id="checkoutStage1">
+                    <form id="deliveryForm">
+                        <div class="form-group">
+                            <label class="form-label" for="customerName">Nama Lengkap Penerima</label>
+                            <input type="text" id="customerName" class="form-input" placeholder="Contoh: Ibu Rina" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="customerWhatsapp">No. WhatsApp Aktif</label>
+                            <input type="tel" id="customerWhatsapp" class="form-input" placeholder="Contoh: 0812345678" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="customerAddress">Alamat Lengkap Pengiriman</label>
+                            <textarea id="customerAddress" class="form-input" placeholder="Tuliskan nama jalan, RT/RW, kelurahan, kecamatan, patokan jalan..." required></textarea>
+                        </div>
+
+                        <!-- Google Maps Pinpoint & Paste Link Dual Methods Checkout Group -->
+                        <div class="form-group" style="background: #f0fdf4; border: 1.5px dashed var(--primary); padding: 1.25rem; border-radius: var(--border-radius-sm); margin-bottom: 1.25rem;">
+                            <!-- Tab Selectors (Salin Link GMaps is default!) -->
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 0.5rem;">
+                                <button type="button" id="tabMapLink" onclick="selectMapOption('link')" style="flex: 1; padding: 0.5rem; font-size: 0.75rem; font-weight: 700; border: none; background: var(--primary); color: #fff; border-radius: 6px; cursor: pointer; transition: var(--transition);">🔗 Salin Link Google Maps</button>
+                                <button type="button" id="tabMapInteractive" onclick="selectMapOption('interactive')" style="flex: 1; padding: 0.5rem; font-size: 0.75rem; font-weight: 700; border: none; background: #e2e8f0; color: #475569; border-radius: 6px; cursor: pointer; transition: var(--transition);">📍 Cari di Peta Pinpoint</button>
+                            </div>
+                            
+                            <!-- TAB A: PASTE GOOGLE MAPS LINK COMPONENT (DEFAULT) -->
+                            <div id="mapLinkSection">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <label class="form-label" style="color: var(--primary-dark); font-weight: 700; margin: 0; font-size: 0.8rem;">Tempel / Paste Link Google Maps dari HP Anda:</label>
+                                    <a href="https://www.google.com/maps" target="_blank" class="header-btn" style="padding: 2px 8px; font-size: 0.72rem; margin: 0; background: var(--white); border-color: var(--primary); color: var(--primary); border-radius: 4px; display: inline-flex; align-items: center; gap: 2px; text-decoration: none;">🌐 Buka Google Maps</a>
+                                </div>
+                                <div style="display: flex; gap: 0.25rem; margin-bottom: 0.6rem;">
+                                    <input type="url" id="customerMapsPasteInput" class="form-input" placeholder="Contoh: https://maps.app.goo.gl/..." style="background: #fff; font-size: 0.8rem; padding: 0.4rem 0.6rem; flex: 1;">
+                                    <button type="button" onclick="resolveGmapsLinkInput()" class="checkout-btn" style="width: auto; padding: 0 1rem; margin: 0; font-size: 0.8rem; border-radius: 6px; white-space: nowrap;">Terapkan Link</button>
+                                </div>
+                                <span style="font-size: 0.72rem; color: var(--gray-500); display: block; line-height: 1.45; margin-bottom: 0.75rem;">
+                                    *Cara cari di HP: Buka aplikasi <strong>Google Maps</strong> ➡️ Cari rumah Anda ➡️ Klik tombol <strong>"Bagikan" (Share)</strong> ➡️ Klik <strong>"Salin Link" (Copy link)</strong> ➡️ Tempelkan ke kolom atas dan klik Terapkan.
+                                </span>
+                                
+                                <!-- Leaflet Map container for Paste Link Method (Initially hidden, shown only after link applied!) -->
+                                <div id="checkoutMapLinkPreviewContainer" style="display: none; margin-top: 0.75rem; border-top: 1px dashed var(--primary-light); padding-top: 0.75rem;">
+                                    <label class="form-label" style="color: var(--primary-dark); font-weight: 700; margin-bottom: 0.5rem; display: block; font-size: 0.8rem;">📍 Verifikasi Lokasi Anda di Peta:</label>
+                                </div>
+                            </div>
+                            
+                            <!-- TAB B: INTERACTIVE MAP COMPONENT (SECOND OPTION) -->
+                            <div id="mapInteractiveSection" style="display: none;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <label class="form-label" style="color: var(--primary-dark); font-weight: 700; margin: 0; font-size: 0.8rem;">Geser marker merah ke atap rumah Anda:</label>
+                                    <button type="button" onclick="toggleMapSize()" id="btnToggleMapSize" class="header-btn" style="padding: 2px 8px; font-size: 0.72rem; margin: 0; background: var(--white); border-color: var(--primary); color: var(--primary); border-radius: 4px;">🔍 Perbesar Peta</button>
+                                </div>
+                                
+                                <!-- Search Bar with suggestions dropdown -->
+                                <div style="position: relative; margin-bottom: 0.6rem; z-index: 5;">
+                                    <div style="display: flex; gap: 0.25rem;">
+                                        <input type="text" id="mapSearchInput" class="form-input" placeholder="Ketik nama jalan, perumahan, kelurahan..." style="background: #fff; font-size: 0.8rem; padding: 0.4rem 0.6rem; flex: 1;" oninput="debouncedSearchSuggestions(this.value)">
+                                        <button type="button" onclick="searchAddressOnMap()" class="checkout-btn" style="width: auto; padding: 0 1rem; margin: 0; font-size: 0.8rem; border-radius: 6px;">Cari</button>
+                                    </div>
+                                    <div id="mapSearchSuggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--gray-200); border-radius: 6px; box-shadow: var(--shadow-md); display: none; max-height: 200px; overflow-y: auto; z-index: 9999; margin-top: 4px;"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Leaflet Map Widget (Shared between tabs dynamically) -->
+                            <div id="checkoutMap" style="height: 220px; border-radius: 8px; border: 1px solid var(--gray-200); margin-bottom: 0.75rem; z-index: 1; transition: height 0.3s ease; display: none;"></div>
+                            
+                            <!-- Button for Location Confirmation & Courier Loading -->
+                            <button type="button" id="btnConfirmLocation" class="checkout-btn" style="background: var(--primary); color: white; display: none; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; margin-top: 0.5rem; margin-bottom: 0.5rem; font-weight: 700; border-radius: 8px; font-size: 0.85rem; padding: 0.6rem 1rem; border: none; transition: var(--transition);">📍 Konfirmasi Lokasi & Cek Ongkir</button>
+                            
+                            <!-- Hidden input element to store final link coordinates for Supabase database compatibility -->
+                            <input type="url" id="customerMapsLink" required style="display: none;">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Metode Ekspedisi / Pengiriman</label>
+                            <div class="delivery-options-grid" id="deliveryGrid">
+                                <div class="delivery-card selected" data-shipping="kurir-toko" data-cost="5000">
+                                    <span class="delivery-name">🛵 Kurir Lokal Toko</span>
+                                    <span class="delivery-price">Rp 5.000 (1-3 jam)</span>
+                                </div>
+                                <div class="delivery-card" data-shipping="gosend-grab" data-cost="15000">
+                                    <span class="delivery-name">⚡ GoSend / Grab</span>
+                                    <span class="delivery-price">Rp 15.000 (Instan)</span>
+                                </div>
+                            </div>
+                            <div id="shopPickupInfo" style="display: none; background: #f0fdf4; border: 1.5px solid #bbf7d0; padding: 0.75rem; border-radius: 8px; margin-top: 0.75rem; font-size: 0.8rem; line-height: 1.45; color: #15803d;">
+                                🏪 Silakan ambil sayur segar Anda di: <strong id="shopPickupAddressText">...</strong><br>
+                                🗺️ <a id="shopPickupGmapsLink" href="..." target="_blank" style="color: var(--primary); font-weight: 700; text-decoration: underline;">Petunjuk Arah Google Maps ➔</a>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content: space-between; align-items:center; margin: 1.5rem 0 1rem;">
+                            <span style="font-weight: 700; color: var(--dark);">Estimasi Total Belanja:</span>
+                            <strong id="stage1Total" style="font-size: 1.3rem; color: var(--primary-dark);">Rp 0</strong>
+                        </div>
+
+                        <button type="submit" class="checkout-btn">
+                            Buat Pesanan & Lanjut ke Pembayaran
+                        </button>
+                    </form>
+                </div>
+
+                <!-- STAGE 2: SHOPEE-LIKE PAYMENT VIEW -->
+                <div id="checkoutStage2" style="display: none;">
+                    <div style="background-color: var(--primary-light); color: var(--primary-dark); padding: 0.75rem; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 700; text-align: center; margin-bottom: 1.25rem;">
+                        🎉 Pesanan Berhasil Dibuat! Order ID: <span id="paymentOrderId" style="font-family: monospace;">#MBK-XXXX</span>
+                    </div>
+
+                    <div style="font-size: 0.9rem; color: var(--gray-500); margin-bottom: 1rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 0.5rem;">
+                        Pesanan Anda telah tercatat dengan status <strong style="color: var(--accent);">"Menunggu Pembayaran"</strong>. Silakan pilih metode pembayaran di bawah untuk menyelesaikan pesanan.
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Pilih Metode Pembayaran</label>
+                        <div class="payment-method-selector" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+                            <label class="delivery-card" style="flex-direction: row; align-items: center; justify-content: space-between; cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="radio" name="paymentType" value="qris" style="accent-color: var(--primary);">
+                                    <span class="delivery-name">📱 Scan QRIS Instan</span>
+                                </div>
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" style="height: 20px;">
+                            </label>
+                            <label class="delivery-card" style="flex-direction: row; align-items: center; justify-content: space-between; cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="radio" name="paymentType" value="va" style="accent-color: var(--primary);">
+                                    <span class="delivery-name">🏦 Virtual Account (VA)</span>
+                                </div>
+                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--gray-500);">BCA, Mandiri, BRI</span>
+                            </label>
+                            <label class="delivery-card" style="flex-direction: row; align-items: center; justify-content: space-between; cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="radio" name="paymentType" value="cod" style="accent-color: var(--primary);">
+                                    <span class="delivery-name">💵 COD (Bayar di Tempat)</span>
+                                </div>
+                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">Bebas Biaya</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic payment container dependent on selected method -->
+                    <div id="paymentPlaceholderBox" class="payment-showcase" style="border: 2px dashed var(--gray-300); background-color: var(--gray-50); text-align: center; padding: 2.5rem 1.5rem; border-radius: 12px; margin: 1rem 0;">
+                        <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">💡</span>
+                        <h4 style="color: var(--gray-600); font-weight: 700; margin-bottom: 0.25rem;">Pilih Metode Pembayaran</h4>
+                        <p style="font-size: 0.85rem; color: var(--gray-500); line-height: 1.45; max-width: 320px; margin: 0 auto;">
+                            Silakan pilih salah satu metode pembayaran di atas untuk menyelesaikan pesanan Anda.
+                        </p>
+                    </div>
+
+                    <div id="midtransQrisConfirmBox" class="payment-showcase" style="border: 2px solid var(--primary); background: #f0fdf4; display: none; text-align: center; padding: 1.5rem; border-radius: 12px; margin: 1rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" style="height: 30px; margin-bottom: 0.75rem;">
+                        <h4 style="color: var(--primary-dark); font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            ⚡ Pembayaran QRIS Otomatis
+                        </h4>
+                        <p style="font-size: 0.85rem; color: var(--gray-600); line-height: 1.5; max-width: 350px; margin: 0 auto 1.25rem;">
+                            Mendukung pembayaran otomatis menggunakan <strong>GoPay, ShopeePay, OVO, Dana, LinkAja</strong>, atau aplikasi Mobile Banking apa pun.
+                        </p>
+                        <button type="button" id="btnConfirmQrisPay" class="checkout-btn" style="width: auto; padding: 0.6rem 2.25rem; margin: 0 auto; background: var(--primary); border-radius: 8px; font-weight: 700;">
+                            Bayar dengan QRIS ➔
+                        </button>
+                    </div>
+
+                    <div id="midtransVaConfirmBox" class="payment-showcase" style="border: 2px solid #3b82f6; background: #eff6ff; display: none; text-align: center; padding: 1.5rem; border-radius: 12px; margin: 1rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; margin-bottom: 0.75rem;">
+                            <span style="font-size: 1.5rem; font-weight: 800; color: #1d4ed8; font-family: sans-serif; letter-spacing: 0.5px;">VA</span>
+                            <span style="font-size: 0.85rem; color: #3b82f6; font-weight: 700;">Multi-Bank</span>
+                        </div>
+                        <h4 style="color: #1d4ed8; font-weight: 700; margin-bottom: 0.75rem;">
+                            ⚡ Virtual Account Otomatis
+                        </h4>
+                        <p style="font-size: 0.85rem; color: #4b5563; line-height: 1.5; max-width: 350px; margin: 0 auto 1.25rem;">
+                            Silakan pilih bank transfer Anda untuk menghasilkan nomor rekening Virtual Account otomatis:
+                        </p>
+                        
+                        <!-- Bank Selector Grid -->
+                        <div class="bank-selector-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
+                            <div class="bank-opt-card" data-bank="bca" style="border: 1px solid var(--gray-300); background: var(--white); padding: 0.6rem 0.25rem; border-radius: 8px; cursor: pointer; text-align: center; font-weight: 700; font-size: 0.75rem; transition: all 0.2s;">BCA</div>
+                            <div class="bank-opt-card" data-bank="mandiri" style="border: 1px solid var(--gray-300); background: var(--white); padding: 0.6rem 0.25rem; border-radius: 8px; cursor: pointer; text-align: center; font-weight: 700; font-size: 0.75rem; transition: all 0.2s;">MANDIRI</div>
+                            <div class="bank-opt-card" data-bank="bri" style="border: 1px solid var(--gray-300); background: var(--white); padding: 0.6rem 0.25rem; border-radius: 8px; cursor: pointer; text-align: center; font-weight: 700; font-size: 0.75rem; transition: all 0.2s;">BRI</div>
+                            <div class="bank-opt-card" data-bank="bni" style="border: 1px solid var(--gray-300); background: var(--white); padding: 0.6rem 0.25rem; border-radius: 8px; cursor: pointer; text-align: center; font-weight: 700; font-size: 0.75rem; transition: all 0.2s;">BNI</div>
+                            <div class="bank-opt-card" data-bank="permata" style="border: 1px solid var(--gray-300); background: var(--white); padding: 0.6rem 0.25rem; border-radius: 8px; cursor: pointer; text-align: center; font-weight: 700; font-size: 0.75rem; transition: all 0.2s;">PERMATA</div>
+                        </div>
+
+                        <button type="button" id="btnConfirmVaPay" class="checkout-btn" disabled style="width: auto; padding: 0.6rem 2.25rem; margin: 0 auto; background: var(--gray-300); color: var(--gray-500); cursor: not-allowed; border-radius: 8px; font-weight: 700; transition: all 0.2s;">
+                            Pilih Bank Terlebih Dahulu
+                        </button>
+                    </div>
+
+                    <div id="midtransEmbedBox" class="payment-showcase" style="display: none; padding: 0.5rem; border-radius: 12px; margin: 1rem 0; background: var(--white); border: 1px solid var(--gray-200); box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                        <style>
+                            @keyframes snap-spin {
+                                0% { transform: rotate(0deg); }
+                                100% { transform: rotate(360deg); }
+                            }
+                        </style>
+                        <div id="snap-loading" style="text-align: center; padding: 3rem 1.5rem; color: var(--gray-500);">
+                            <div style="border: 3px solid var(--gray-200); border-top: 3px solid var(--primary); border-radius: 50%; width: 28px; height: 28px; animation: snap-spin 1s linear infinite; margin: 0 auto 0.75rem;"></div>
+                            <span style="font-size: 0.85rem; font-weight: 600; display: block; color: var(--gray-600); margin-top: 0.5rem;">Menghubungi server Midtrans...</span>
+                        </div>
+                        <div id="snap-container" style="min-height: 400px; width: 100%;"></div>
+                    </div>
+
+                    <div id="qrisPaymentBox" class="payment-showcase" style="border: 2px dashed var(--primary); margin: 1rem 0;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" class="qris-badge">
+                        <div class="qris-code-box">
+                            <img src="" alt="QRIS Code" id="qrisCodeImg">
+                        </div>
+                        <div class="payment-instructions">
+                            1. Scan QRIS di atas menggunakan aplikasi Bank atau E-Wallet Anda.<br>
+                            2. Total tagihan: <strong id="qrisFinalPrice" style="color: var(--primary-dark)">Rp 0</strong>.<br>
+                            3. Setelah dibayar, sistem otomatis memverifikasi tagihan Anda.
+                        </div>
+                        <!-- Developer Mode Instant Payment Simulator -->
+                        <div style="background: #ecfdf5; border: 1px solid #10b981; padding: 0.6rem; border-radius: 8px; margin-top: 0.75rem; text-align: center;">
+                            <span style="font-size: 0.75rem; color: #047857; font-weight: 700; display: block; margin-bottom: 0.4rem;">🧪 SIMULATOR WEBHOOK PEMBAYARAN INSTAN (DEV MODE)</span>
+                            <button type="button" onclick="simulatePaymentSuccess()" class="checkout-btn" style="width: auto; padding: 0.35rem 1rem; margin: 0; font-size: 0.75rem; border-radius: 6px; background: #10b981;">Simulasikan Bayar QRIS Sukses ➔</button>
+                        </div>
+                    </div>
+
+                    <div id="vaPaymentBox" class="payment-showcase" style="border: 2px dashed #0056b3; background-color: #f0f7ff; display: none;">
+                        <h4 style="color: #0056b3; font-weight: 700; margin-bottom: 0.25rem;" id="vaBankNameTitle">Virtual Account BCA</h4>
+                        <div id="vaAccountNumberDisplay" style="font-family: monospace; font-size: 1.3rem; letter-spacing: 1px; color: var(--dark); font-weight: 800; background: var(--white); padding: 0.75rem; border-radius: var(--border-radius-sm); border: 1px solid var(--gray-200); margin: 0.5rem 0;">
+                            8801 2345 6789 0123
+                        </div>
+                        <div class="payment-instructions" style="color: #4b5563;">
+                            1. Salin nomor Virtual Account di atas.<br>
+                            2. Transfer dari M-Banking / ATM sebesar <strong id="vaFinalPrice" style="color: #0056b3">Rp 0</strong>.<br>
+                            3. Sistem simulasi mendeteksi otomatis setelah pembayaran selesai.
+                        </div>
+                        <!-- Developer Mode Instant Payment Simulator -->
+                        <div style="background: #eff6ff; border: 1px solid #3b82f6; padding: 0.6rem; border-radius: 8px; margin-top: 0.75rem; text-align: center;">
+                            <span style="font-size: 0.75rem; color: #1d4ed8; font-weight: 700; display: block; margin-bottom: 0.4rem;">🧪 SIMULATOR WEBHOOK PEMBAYARAN INSTAN (DEV MODE)</span>
+                            <button type="button" onclick="simulatePaymentSuccess()" class="checkout-btn" style="width: auto; padding: 0.35rem 1rem; margin: 0; font-size: 0.75rem; border-radius: 6px; background: #3b82f6;">Simulasikan Bayar VA Sukses ➔</button>
+                        </div>
+                    </div>
+
+                    <div id="codPaymentBox" class="payment-showcase" style="border: 2px dashed var(--accent); background-color: var(--accent-light); display: none;">
+                        <h4 style="color: #b45309; font-weight: 700; margin-bottom: 0.25rem;">Cash on Delivery (COD)</h4>
+                        <p style="font-size: 0.85rem; max-width: 350px; line-height: 1.4; color: #78350f; margin-top: 0.25rem;">
+                            Anda memilih untuk membayar tunai langsung kepada kurir kami saat sayur segar sampai di rumah Anda.
+                        </p>
+                        <div class="payment-instructions" style="color: #78350f;">
+                            Harap siapkan uang pas sebesar <strong id="codFinalPrice" style="color: #b45309">Rp 0</strong> untuk memudahkan transaksi.
+                        </div>
+                    </div>
+
+                     <!-- Voucher Input Box -->
+                    <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid var(--gray-200); padding-top: 1.25rem;">
+                        <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
+                            <span>🎟️ Punya Kode Voucher?</span>
+                            <span id="voucherBadge" style="display: none; background: #ecfdf5; color: #047857; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px dashed #10b981;">Voucher Aktif</span>
+                        </label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="couponCodeInput" class="form-control" placeholder="Contoh: ONGKIRGRATIS" style="margin: 0; padding: 0.5rem 0.75rem; font-size: 0.85rem; text-transform: uppercase;">
+                            <button type="button" id="btnApplyCoupon" class="checkout-btn" style="width: auto; padding: 0.5rem 1.25rem; font-size: 0.85rem; margin: 0; background: var(--dark); border-radius: 8px;">Terapkan</button>
+                        </div>
+                        <div id="voucherErrorMessage" style="display: none; color: var(--accent); font-size: 0.75rem; font-weight: 700; margin-top: 0.35rem;"></div>
+                    </div>
+
+                    <!-- Detailed Price Breakdown Settle -->
+                    <div style="background: var(--gray-50); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--gray-200); margin-top: 1rem; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--gray-500);">Subtotal Produk:</span>
+                            <span id="breakdownSubtotal" style="font-weight: 600; color: var(--dark);">Rp 0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--gray-500);">Ongkos Kirim:</span>
+                            <span id="breakdownOngkir" style="font-weight: 600; color: var(--dark);">Rp 0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--gray-500);">Biaya Layanan Admin:</span>
+                            <span id="breakdownAdmin" style="font-weight: 600; color: var(--dark);">Rp 0</span>
+                        </div>
+                        <div id="breakdownDiskonRow" style="display: none; justify-content: space-between;">
+                            <span style="color: var(--gray-500);">Diskon Belanja:</span>
+                            <span id="breakdownDiskon" style="font-weight: 700; color: #10b981;">-Rp 0</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content: space-between; align-items:center; margin: 1rem 0 1rem; border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
+                        <span style="font-weight: 700; color: var(--dark); font-size: 0.95rem;">Total Tagihan Akhir:</span>
+                        <strong id="stage2Total" style="font-size: 1.3rem; color: var(--primary-dark);">Rp 0</strong>
+                    </div>
+
+                    <button type="button" class="checkout-btn" id="confirmPaymentBtn">
+                        Selesaikan Pembayaran
+                    </button>
+                </div>
+
+                <!-- STAGE 3: SUCCESS CONFIRMATION VIEW -->
+                <div id="checkoutStage3" style="display: none; text-align: center; padding: 2rem 1rem;">
+                    <div style="background-color: var(--primary-light); color: var(--primary-dark); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: var(--shadow-md);">
+                        <svg fill="none" stroke="currentColor" width="40" height="40" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.5rem;">Pembayaran Berhasil!</h3>
+                    <p style="color: var(--gray-500); font-size: 0.95rem; line-height: 1.5; max-width: 400px; margin: 0 auto 1.5rem;">
+                        Terima kasih sudah berbelanja di Mbokde Mart. Sistem telah memverifikasi pesanan Anda. Sayuran segar pilihan Anda sedang disiapkan untuk dikirim!
+                    </p>
+
+                    <div style="background-color: var(--gray-100); border-radius: var(--border-radius-sm); padding: 1rem; text-align: left; max-width: 400px; margin: 0 auto 2rem; font-size: 0.85rem;">
+                        <strong>Informasi Pesanan Anda:</strong><br>
+                        • Order ID: <span id="successOrderId" style="font-family: monospace; font-weight: bold;">#MBK-XXXX</span><br>
+                        • Status Pembayaran: <span style="color: var(--primary-dark); font-weight: bold;">Lunas / COD Terkonfirmasi</span><br>
+                        • Estimasi Pengiriman: <span id="successDeliveryTime">1-3 Jam</span>
+                    </div>
+
+                    <button type="button" class="checkout-btn" id="finishCheckoutBtn">
+                        Kembali Belanja Sayur
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pesanan Saya (Order History) -->
+    <div class="modal-overlay" id="ordersHistoryModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="cart-title">📋 Riwayat Pesanan Saya</h2>
+                <button class="close-btn" id="closeOrdersModalBtn" aria-label="Tutup Riwayat">
+                    <svg fill="none" stroke="currentColor" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="noHpLoginBox">
+                    <p style="font-size:0.9rem; color:var(--gray-500); margin-bottom:1.25rem; line-height: 1.4;">
+                        Masukkan nomor WhatsApp Anda untuk melihat riwayat pesanan & melakukan pembayaran pesanan yang masih tertunda kapan saja.
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label" for="searchWaNo">No. WhatsApp Pelanggan</label>
+                        <div style="display:flex; gap:0.5rem;">
+                            <input type="tel" id="searchWaNo" class="form-input" placeholder="Contoh: 0812345678" style="flex:1;">
+                            <button class="checkout-btn" id="submitLoginWaBtn" style="width:auto; padding:0 1.5rem; white-space: nowrap;">Cari Pesanan</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Status Filter Buttons Row for Customer -->
+                <div id="ordersFilterContainer" style="display: none; gap: 0.35rem; margin-bottom: 1rem; overflow-x: auto; padding-bottom: 0.75rem; white-space: nowrap; width: 100%; border-bottom: 1px solid var(--gray-200); scrollbar-width: none; -ms-overflow-style: none;">
+                    <style>
+                        #ordersFilterContainer::-webkit-scrollbar {
+                            display: none;
+                        }
+                    </style>
+                    <button type="button" class="filter-status-btn active" data-status="semua" style="border: none; padding: 0.4rem 0.8rem; font-size: 0.75rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: var(--primary); color: white;">Semua</button>
+                    <button type="button" class="filter-status-btn" data-status="belum-bayar" style="border: 1px solid var(--gray-300); padding: 0.4rem 0.8rem; font-size: 0.75rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: white; color: var(--gray-600);">Belum Bayar</button>
+                    <button type="button" class="filter-status-btn" data-status="diproses" style="border: 1px solid var(--gray-300); padding: 0.4rem 0.8rem; font-size: 0.75rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: white; color: var(--gray-600);">Diproses</button>
+                    <button type="button" class="filter-status-btn" data-status="dikirim" style="border: 1px solid var(--gray-300); padding: 0.4rem 0.8rem; font-size: 0.75rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: white; color: var(--gray-600);">Dikirim</button>
+                    <button type="button" class="filter-status-btn" data-status="selesai" style="border: 1px solid var(--gray-300); padding: 0.4rem 0.8rem; font-size: 0.75rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: white; color: var(--gray-600);">Selesai</button>
+                </div>
+                <div id="ordersListBox" style="display:none; max-height: 450px; overflow-y:auto; padding-right: 0.25rem;">
+                    <!-- Dynamic Order Cards injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Pesanan Pelanggan (Level Up!) -->
+    <div class="modal-overlay" id="orderDetailModal" style="z-index: 6500;">
+        <div class="modal-content" style="max-width: 550px; width: 95%;">
+            <div class="modal-header">
+                <h2 class="cart-title">🔍 Pelacakan Status Pesanan</h2>
+                <button class="close-btn" id="closeOrderDetailBtn" aria-label="Tutup Detail">
+                    <svg fill="none" stroke="currentColor" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 1rem 1.25rem;">
+                <!-- 5-Step Stepper Progress Bar -->
+                <div class="stepper-container">
+                    <div class="step-item" id="step1">
+                        <div class="step-icon">📝</div>
+                        <div class="step-label">Dibuat</div>
+                    </div>
+                    <div class="step-line" id="line1"></div>
+                    <div class="step-item" id="step2">
+                        <div class="step-icon">💳</div>
+                        <div class="step-label">Terbayar</div>
+                    </div>
+                    <div class="step-line" id="line2"></div>
+                    <div class="step-item" id="step3">
+                        <div class="step-icon">📦</div>
+                        <div class="step-label">Disiapkan</div>
+                    </div>
+                    <div class="step-line" id="line3"></div>
+                    <div class="step-item" id="step4">
+                        <div class="step-icon">🛵</div>
+                        <div class="step-label">Dikirim</div>
+                    </div>
+                    <div class="step-line" id="line4"></div>
+                    <div class="step-item" id="step5">
+                        <div class="step-icon">🎉</div>
+                        <div class="step-label">Selesai</div>
+                    </div>
+                </div>
+
+                <!-- Status Text Summary -->
+                <div id="detailStatusBanner" style="text-align: center; background: var(--primary-light); color: var(--primary-dark); padding: 0.75rem; border-radius: 8px; font-weight: 700; margin: 1.5rem 0 1rem; font-size: 0.9rem;">
+                    Status: Memuat status...
+                </div>
+
+                <!-- Order Info Details -->
+                <div style="font-size:0.85rem; color:var(--gray-500); line-height: 1.5; background: #f8fafc; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--gray-100); margin-bottom: 1rem;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>ID Pesanan:</span>
+                        <strong id="detailOrderId" style="font-family:monospace; color:var(--dark);">#MBK-XXXX</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Tanggal Transaksi:</span>
+                        <span id="detailOrderDate" style="color:var(--dark);">-</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Nama Penerima:</span>
+                        <span id="detailCustomerName" style="color:var(--dark); font-weight:600;">-</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>No. WhatsApp:</span>
+                        <span id="detailCustomerWhatsapp" style="color:var(--dark);">-</span>
+                    </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div style="margin-bottom: 1rem;">
+                    <h4 style="font-size:0.85rem; font-weight:700; margin-bottom:0.25rem;">📍 Alamat Pengiriman</h4>
+                    <p id="detailCustomerAddress" style="font-size:0.8rem; color:var(--gray-500); line-height:1.4; margin:0;"></p>
+                </div>
+
+                <!-- Google Maps Link Display -->
+                <div style="margin-bottom: 1rem; background:#f0fdf4; padding:0.6rem 0.8rem; border-radius:8px; border:1px solid #bbf7d0; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.8rem; font-weight:700; color:#15803d;">🗺️ Google Maps Pinpoint:</span>
+                    <a id="detailCustomerMapsLink" href="#" target="_blank" style="font-size:0.78rem; font-weight:700; color:var(--primary); text-decoration:underline;">Buka di Google Maps ➔</a>
+                </div>
+
+                <!-- Items Purchased list -->
+                <div style="margin-bottom: 1rem; border-top: 1px solid var(--gray-100); padding-top: 0.75rem;">
+                    <h4 style="font-size:0.85rem; font-weight:700; margin-bottom:0.5rem;">🛍️ Sayuran yang Dibeli</h4>
+                    <div id="detailPurchasedItems" style="max-height: 150px; overflow-y:auto; display:flex; flex-direction:column; gap:0.4rem;">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Bill Totals -->
+                <div style="border-top:1px solid var(--gray-100); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.25rem; font-size:0.85rem;">
+                    <div style="display:flex; justify-content:space-between; color:var(--gray-500);">
+                        <span>Subtotal Sayur:</span>
+                        <span id="detailSubtotal">Rp 0</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; color:var(--gray-500);">
+                        <span>Ongkos Kirim (<span id="detailCourierName">Kurir Toko</span>):</span>
+                        <span id="detailShippingCost">Rp 0</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.05rem; color:var(--dark); margin-top:0.25rem; border-top: 1px dashed var(--gray-200); padding-top:0.25rem;">
+                        <span>Total Tagihan:</span>
+                        <span id="detailTotal" style="color:var(--primary-dark);">Rp 0</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= DASHBOARD PENJUAL / ADMIN TOKO (FULL SCREEN LAYOUT) ================= -->
+    <div class="admin-dashboard-page" id="sellerDashboardPage">
+        <!-- PIN Verification Overlay inside page -->
+        <div id="sellerPinSection" class="admin-pin-container">
+            <div class="admin-pin-card">
+                <div class="admin-pin-header">
+                    <div class="logo">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 8C15 6 12.3 5.4 9.6 5.9C8.3 4.2 6.1 3 3.5 3C3.2 3 3 3.2 3 3.5C3 6.1 4.2 8.3 5.9 9.6C5.4 12.3 6 15 8 17C10.2 19.2 13.5 19.6 16.1 18.2C17.3 19.7 19.3 20.7 21.5 20.9C21.8 20.9 22 20.7 22 20.4C22 18.2 21 16.2 19.5 15C20.8 12.4 20.3 9.1 17 8ZM5.2 5.2C6.9 5.6 8.3 6.7 9.1 8.2C7.3 7.8 5.7 6.8 5.2 5.2ZM15.6 15.6C14 17.2 11.4 17.2 9.8 15.6C8.2 14 8.2 11.4 9.8 9.8C11.4 8.2 14 8.2 15.6 9.8C17.2 11.4 17.2 14 15.6 15.6ZM18.8 18.8C18.3 17.2 17.3 15.8 15.8 15C17.3 14.2 18.4 12.8 18.8 11.2C19.7 12.6 19.7 14.5 18.8 18.8Z" />
+                        </svg>
+                        Mbokde<span>Mart</span>
+                    </div>
+                    <h3>Verifikasi Keamanan</h3>
+                </div>
+                <p>Masukkan PIN Keamanan Toko Mbokde Mart untuk masuk ke dashboard penjual.</p>
+                <div class="form-group">
+                    <input type="password" id="sellerPinInput" class="form-input" placeholder="PIN Toko (Default: 1234)" style="text-align: center; font-size: 1.5rem; letter-spacing: 6px;">
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <button class="checkout-btn" id="submitSellerPinBtn">Verifikasi PIN</button>
+                    <button class="header-btn" id="closeSellerDashboardBtn" style="border-radius: 50px;">Kembali</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Layout Grid -->
+        <div id="sellerControlPanel" class="admin-layout" style="display: none;">
+            <!-- Sidebar Panel -->
+            <aside class="admin-sidebar">
+                <div class="sidebar-brand">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 8C15 6 12.3 5.4 9.6 5.9C8.3 4.2 6.1 3 3.5 3C3.2 3 3 3.2 3 3.5C3 6.1 4.2 8.3 5.9 9.6C5.4 12.3 6 15 8 17C10.2 19.2 13.5 19.6 16.1 18.2C17.3 19.7 19.3 20.7 21.5 20.9C21.8 20.9 22 20.7 22 20.4C22 18.2 21 16.2 19.5 15C20.8 12.4 20.3 9.1 17 8ZM5.2 5.2C6.9 5.6 8.3 6.7 9.1 8.2C7.3 7.8 5.7 6.8 5.2 5.2ZM15.6 15.6C14 17.2 11.4 17.2 9.8 15.6C8.2 14 8.2 11.4 9.8 9.8C11.4 8.2 14 8.2 15.6 9.8C17.2 11.4 17.2 14 15.6 15.6ZM18.8 18.8C18.3 17.2 17.3 15.8 15.8 15C17.3 14.2 18.4 12.8 18.8 11.2C19.7 12.6 19.7 14.5 18.8 18.8Z" />
+                    </svg>
+                    <span>Admin Panel</span>
+                </div>
+                <nav class="sidebar-menu">
+                    <button class="sidebar-link active" id="tabSellerDashboard">
+                        📊 Ringkasan Dasbor
+                    </button>
+                    <button class="sidebar-link" id="tabSellerOrders">
+                        📦 Pesanan Masuk
+                    </button>
+                    <button class="sidebar-link" id="tabSellerProducts">
+                        🥦 Katalog Produk
+                    </button>
+                    <button class="sidebar-link" id="tabSellerSettings">
+                        ⚙️ Pengaturan Toko
+                    </button>
+                </nav>
+                <div class="sidebar-footer">
+                    <button class="sidebar-link logout-btn" id="sellerLogoutBtn">
+                        🚪 Keluar Toko
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="admin-content">
+                <!-- Top Navbar -->
+                <header class="admin-topbar">
+                    <h2 id="adminPageTitle">📊 Ringkasan Dasbor</h2>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <span style="font-size:0.85rem; color:var(--gray-500); font-weight:600;">Status Server: <span style="color:var(--primary);">● Online</span></span>
+                        <button class="header-btn" onclick="refreshAdminData()" style="padding:0.4rem 0.8rem; font-size:0.8rem;">🔄 Segarkan</button>
+                    </div>
+                </header>
+
+                <div class="admin-content-body">
+                    <!-- SECTION 1: OVERVIEW SUMMARY (DEFAULT TAB) -->
+                    <div id="sellerDashboardOverview" class="admin-tab-section">
+                        <!-- Analytics Cards Grid -->
+                        <div class="analytics-grid">
+                            <div class="analytic-card">
+                                <div class="card-icon">💰</div>
+                                <div class="card-info">
+                                    <span class="card-label">Total Pendapatan (Lunas)</span>
+                                    <h3 id="analyticTotalRevenue">Rp 0</h3>
+                                </div>
+                            </div>
+                            <div class="analytic-card">
+                                <div class="card-icon">⏳</div>
+                                <div class="card-info">
+                                    <span class="card-label">Pesanan Baru (Pending)</span>
+                                    <h3 id="analyticNewOrders">0 Pesanan</h3>
+                                </div>
+                            </div>
+                            <div class="analytic-card">
+                                <div class="card-icon">🥦</div>
+                                <div class="card-info">
+                                    <span class="card-label">Total Produk Aktif</span>
+                                    <h3 id="analyticActiveProducts">0 Sayur</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Sales / Quick Info -->
+                        <div style="margin-top:2rem; background:#fff; border-radius:12px; border:1px solid var(--gray-200); padding:1.5rem;">
+                            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:var(--dark);">Pemberitahuan & Petunjuk Admin</h3>
+                            <p style="font-size:0.9rem; color:var(--gray-500); line-height:1.6;">
+                                Selamat datang di dashboard premium Mbokde Mart! Seluruh pembaruan di panel ini akan langsung terhubung ke database **Supabase PostgreSQL** dan terkirim secara **real-time** kepada pembeli. Gunakan sidebar sebelah kiri untuk mengelola Pesanan Masuk pembeli atau memperbarui stok dan foto sayuran segar di Katalog Produk.
+                            </p>
+                            <div style="display:flex; gap:1rem; margin-top:1.5rem; flex-wrap:wrap;">
+                                <div style="flex:1; min-width:200px; background:#f0fdf4; border:1px solid #bbf7d0; padding:1rem; border-radius:8px;">
+                                    <strong style="color:var(--primary-dark); font-size:0.85rem; display:block; margin-bottom:0.25rem;">🥦 Unggah Foto Cepat</strong>
+                                    <span style="font-size:0.8rem; color:#15803d; line-height:1.4; display:block;">Tambahkan produk baru, pilih foto dari perangkat Anda, dan sistem akan mengunggahnya langsung ke CDN Supabase Storage secara instan dan otomatis.</span>
+                                </div>
+                                <div style="flex:1; min-width:200px; background:#fef3c7; border:1px solid #fde68a; padding:1rem; border-radius:8px;">
+                                    <strong style="color:#b45309; font-size:0.85rem; display:block; margin-bottom:0.25rem;">📱 Real-time Sync</strong>
+                                    <span style="font-size:0.8rem; color:#78350f; line-height:1.4; display:block;">Setiap kali Anda merubah status pesanan menjadi "Sedang Disiapkan", "Sedang Dikirim", atau "Selesai", tampilan pembeli akan langsung berkedip terupdate instan!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: ALL INCOMING ORDERS -->
+                    <div id="sellerOrdersView" class="admin-tab-section" style="display: none;">
+                        <!-- Status Filter Buttons Row for Admin -->
+                        <div id="adminOrdersFilterContainer" style="display: flex; gap: 0.35rem; margin-bottom: 1.25rem; overflow-x: auto; padding-bottom: 0.5rem; white-space: nowrap; width: 100%; border-bottom: 1px solid var(--gray-200); scrollbar-width: none; -ms-overflow-style: none;">
+                            <style>
+                                #adminOrdersFilterContainer::-webkit-scrollbar {
+                                    display: none;
+                                }
+                            </style>
+                            <button type="button" class="admin-filter-status-btn active" data-status="semua" style="border: none; padding: 0.45rem 0.9rem; font-size: 0.78rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: var(--primary); color: white;">Semua</button>
+                            <button type="button" class="admin-filter-status-btn" data-status="belum-bayar" style="border: 1px solid var(--gray-300); padding: 0.45rem 0.9rem; font-size: 0.78rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: white; color: var(--gray-600);">Belum Bayar</button>
+                            <button type="button" class="admin-filter-status-btn" data-status="diproses" style="border: 1px solid var(--gray-300); padding: 0.45rem 0.9rem; font-size: 0.78rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: white; color: var(--gray-600);">Diproses</button>
+                            <button type="button" class="admin-filter-status-btn" data-status="dikirim" style="border: 1px solid var(--gray-300); padding: 0.45rem 0.9rem; font-size: 0.78rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: white; color: var(--gray-600);">Dikirim</button>
+                            <button type="button" class="admin-filter-status-btn" data-status="selesai" style="border: 1px solid var(--gray-300); padding: 0.45rem 0.9rem; font-size: 0.78rem; font-weight: 700; border-radius: 20px; cursor: pointer; transition: all 0.2s; background: white; color: var(--gray-600);">Selesai</button>
+                        </div>
+                        <div id="sellerOrdersList" class="admin-scrollable-container">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: MANAGE PRODUCTS -->
+                    <div id="sellerProductsView" class="admin-tab-section" style="display: none;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                            <span style="font-weight:700; font-size:0.95rem; color:var(--dark);">Katalog Aktif di Database Supabase:</span>
+                            <button class="checkout-btn" id="addNewProductBtn" style="width:auto; padding:0.5rem 1rem; font-size:0.85rem; margin:0;">
+                                ➕ Tambah Sayur Baru
+                            </button>
+                        </div>
+                        <div id="sellerProductsList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem; padding-bottom:2rem;">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: SHOP SETTINGS -->
+                    <div id="sellerSettingsView" class="admin-tab-section" style="display: none;">
+                        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start;">
+                            <!-- Sub-Menu Navigation Sidebar -->
+                            <div style="flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 0.4rem; background: var(--gray-50); padding: 0.85rem; border-radius: 12px; border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm);">
+                                <button type="button" class="submenu-btn" onclick="selectSubSettings('subSettingsCourier')" id="btnSubCourier" style="text-align: left; background: none; border: none; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--gray-500); display: flex; align-items: center; gap: 0.5rem; transition: var(--transition); width: 100%;">
+                                    🛵 Jasa Kurir & Lokasi
+                                </button>
+                                <button type="button" class="submenu-btn" onclick="selectSubSettings('subSettingsPayment')" id="btnSubPayment" style="text-align: left; background: none; border: none; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--gray-500); display: flex; align-items: center; gap: 0.5rem; transition: var(--transition); width: 100%;">
+                                    💳 Metode Pembayaran
+                                </button>
+                                <button type="button" class="submenu-btn" onclick="selectSubSettings('subSettingsVoucher')" id="btnSubVoucher" style="text-align: left; background: none; border: none; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--gray-500); display: flex; align-items: center; gap: 0.5rem; transition: var(--transition); width: 100%;">
+                                    🎟️ Biaya & Kelola Voucher
+                                </button>
+                            </div>
+
+                            <!-- Sub-Menu Content Panel -->
+                            <div style="flex: 3; min-width: 320px; background: #fff; border-radius: 12px; border: 1px solid var(--gray-200); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+                                
+                                <!-- SUB-TAB 1: COURIER & LOCATION -->
+                                <div id="subSettingsCourier" class="subsettings-pane" style="display: none;">
+                                    <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem; color:var(--dark); display:flex; align-items:center; gap:0.5rem;">🛵 Pengaturan Kurir Toko (Lokal)</h3>
+                                    
+                                    <div class="form-group" style="margin-bottom:1rem;">
+                                        <label class="form-label" for="inputMinPurchase" style="font-weight:600; font-size:0.85rem;">Minimal Pembelian (Rp)</label>
+                                        <input type="number" id="inputMinPurchase" class="form-input" placeholder="Contoh: 50000" style="font-size:0.9rem;">
+                                        <span style="font-size:0.72rem; color:var(--gray-500);">Batas minimal keranjang belanja agar Kurir Lokal Toko aktif.</span>
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom:1rem;">
+                                        <label class="form-label" for="inputMaxDistance" style="font-weight:600; font-size:0.85rem;">Maksimal Jarak Pengiriman (Km)</label>
+                                        <input type="number" id="inputMaxDistance" class="form-input" placeholder="Contoh: 10" style="font-size:0.9rem;">
+                                        <span style="font-size:0.72rem; color:var(--gray-500);">Batas maksimal jarak dari warung ke titik koordinat pembeli.</span>
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom:1.5rem;">
+                                        <label class="form-label" for="inputLocalCourierFee" style="font-weight:600; font-size:0.85rem;">Tarif Kurir Lokal Toko (Rp)</label>
+                                        <input type="number" id="inputLocalCourierFee" class="form-input" placeholder="Contoh: 5000" style="font-size:0.9rem;">
+                                        <span style="font-size:0.72rem; color:var(--gray-500);">Tarif tetap untuk pengiriman menggunakan kurir internal warung.</span>
+                                    </div>
+
+                                    <h3 style="font-size:1.1rem; font-weight:700; margin-top:1.5rem; margin-bottom:1.25rem; color:var(--dark); display:flex; align-items:center; gap:0.5rem; border-top:1px solid var(--gray-200); padding-top:1.5rem;">🏪 Informasi Lokasi Warung (Ambil Sendiri)</h3>
+
+                                    <div class="form-group" style="margin-bottom:1rem;">
+                                        <label class="form-label" for="inputShopAddress" style="font-weight:600; font-size:0.85rem;">Alamat Lengkap Warung</label>
+                                        <textarea id="inputShopAddress" class="form-input" style="font-size:0.9rem; height:80px;" placeholder="Tulis alamat warung lengkap..."></textarea>
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom:1.5rem;">
+                                        <label class="form-label" for="inputShopGmaps" style="font-weight:600; font-size:0.85rem;">Link Google Maps Warung</label>
+                                        <input type="url" id="inputShopGmaps" class="form-input" placeholder="https://maps.app.goo.gl/..." style="font-size:0.9rem;">
+                                        <span style="font-size:0.72rem; color:var(--gray-500);">Link navigasi rute ke warung agar pembeli bisa datang langsung.</span>
+                                    </div>
+                                </div>
+
+                                <!-- SUB-TAB 2: PAYMENT METHOD -->
+                                <div id="subSettingsPayment" class="subsettings-pane" style="display: none;">
+                                    <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem; color:var(--dark); display:flex; align-items:center; gap:0.5rem;">💳 Pengaturan Metode Pembayaran</h3>
+
+                                    <div class="form-group" style="margin-bottom:1rem;">
+                                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Gambar Kode QRIS Toko</label>
+                                        <div style="display:flex; gap:0.5rem; margin-bottom:0.4rem;">
+                                            <input type="text" id="inputShopQrisUrl" class="form-input" placeholder="Masukkan URL Gambar QRIS atau Upload ➡️" style="font-size:0.85rem; flex:1;">
+                                            <label class="checkout-btn" style="width:auto; padding:0 1rem; margin:0; font-size:0.8rem; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;">
+                                                📁 Upload QRIS
+                                                <input type="file" id="qrisUploadFile" accept="image/*" style="display:none;" onchange="uploadQrisImageToCdn(this)">
+                                            </label>
+                                        </div>
+                                        <span id="qrisUploadStatus" style="font-size:0.75rem; color:var(--gray-500); display:block;">Biarkan kosong jika ingin menggunakan generator QRIS simulasi otomatis.</span>
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom:1rem;">
+                                        <label class="form-label" for="inputShopBankName" style="font-weight:600; font-size:0.85rem;">Nama Bank (Metode VA)</label>
+                                        <input type="text" id="inputShopBankName" class="form-input" placeholder="Contoh: BCA, MANDIRI, BRI" style="font-size:0.9rem;">
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom:1.5rem;">
+                                        <label class="form-label" for="inputShopBankAccountNo" style="font-weight:600; font-size:0.85rem;">Nomor Virtual Account / Rekening</label>
+                                        <input type="text" id="inputShopBankAccountNo" class="form-input" placeholder="Contoh: 8801 2345 6789 0123" style="font-size:0.9rem;">
+                                    </div>
+
+                                    <h3 style="font-size:1.1rem; font-weight:700; margin-top:1.5rem; margin-bottom:1.25rem; color:var(--dark); display:flex; align-items:center; gap:0.5rem; border-top:1px solid var(--gray-200); padding-top:1.5rem;">🔌 Integrasi Sistem Midtrans</h3>
+
+                                    <div class="form-group" style="margin-bottom:1.5rem;">
+                                        <label class="form-label" for="inputMidtransMode" style="font-weight:600; font-size:0.85rem;">Mode Integrasi Midtrans</label>
+                                        <select id="inputMidtransMode" class="form-input" style="font-size:0.9rem; padding:0.5rem; border-radius:8px; border:1px solid var(--gray-300); width:100%; cursor:pointer;">
+                                            <option value="sandbox">🛠️ Uji Coba / Trial Simulasi (Sandbox)</option>
+                                            <option value="production">🚀 Go Public / Transaksi Asli (Production)</option>
+                                        </select>
+                                        <span style="font-size:0.72rem; color:var(--gray-500); display:block; margin-top:0.25rem;">Mengatur apakah pembayaran otomatis menggunakan mode Sandbox (simulasi) atau mode Produksi (asli).</span>
+                                    </div>
+
+                                    <h3 style="font-size:1.1rem; font-weight:700; margin-top:1.5rem; margin-bottom:1.25rem; color:var(--dark); display:flex; align-items:center; gap:0.5rem; border-top:1px solid var(--gray-200); padding-top:1.5rem;">🏷️ Pengaturan Beban Layanan</h3>
+
+                                    <div class="form-group" style="margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
+                                        <input type="checkbox" id="inputChargeAdmin" style="width:16px; height:16px; accent-color:var(--primary); cursor:pointer;">
+                                        <label for="inputChargeAdmin" style="font-weight:600; font-size:0.85rem; margin:0; cursor:pointer;">Bebankan Biaya Admin Midtrans ke Pembeli</label>
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom:1.25rem;">
+                                        <label class="form-label" for="inputVaAdminFee" style="font-weight:600; font-size:0.85rem;">Biaya Admin Virtual Account Default (Rp)</label>
+                                        <input type="number" id="inputVaAdminFee" class="form-input" placeholder="Contoh: 4000" style="font-size:0.9rem;">
+                                        <span style="font-size:0.72rem; color:var(--gray-500);">Besaran biaya layanan Virtual Account yang ditagihkan ke pembeli.</span>
+                                    </div>
+                                </div>
+
+                                <!-- SUB-TAB 3: SURCHARGE & VOUCHERS -->
+                                <div id="subSettingsVoucher" class="subsettings-pane" style="display: none;">
+                                    <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem; color:var(--dark); display:flex; align-items:center; gap:0.5rem;">🎟️ Pengaturan Biaya & Kelola Voucher</h3>
+
+                                    <!-- Automatic Promos Section -->
+                                    <div style="background:#f9fafb; padding:0.75rem 1rem; border-radius:8px; border:1px solid var(--gray-200); margin-bottom:1.25rem;">
+                                        <span style="font-weight:700; font-size:0.85rem; color:var(--dark); display:block; margin-bottom:0.75rem;">⚡ Promosi Otomatis (Tanpa Kode)</span>
+                                        
+                                        <div class="form-group" style="margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">
+                                            <input type="checkbox" id="inputAutoFreeAdmin" style="width:16px; height:16px; accent-color:var(--primary); cursor:pointer;">
+                                            <label for="inputAutoFreeAdmin" style="font-weight:600; font-size:0.8rem; margin:0; cursor:pointer;">Aktifkan Otomatis Bebas Admin</label>
+                                        </div>
+                                        <div class="form-group" style="margin-bottom:1rem;">
+                                            <label class="form-label" for="inputAutoFreeAdminMin" style="font-size:0.78rem; font-weight:600;">Min. Belanja Otomatis Bebas Admin (Rp)</label>
+                                            <input type="number" id="inputAutoFreeAdminMin" class="form-input" placeholder="Contoh: 50000" style="font-size:0.85rem; padding:0.4rem 0.6rem;">
+                                        </div>
+
+                                        <div class="form-group" style="margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem; border-top:1px solid var(--gray-200); padding-top:0.75rem;">
+                                            <input type="checkbox" id="inputAutoFreeOngkir" style="width:16px; height:16px; accent-color:var(--primary); cursor:pointer;">
+                                            <label for="inputAutoFreeOngkir" style="font-weight:600; font-size:0.8rem; margin:0; cursor:pointer;">Aktifkan Otomatis Bebas Ongkir (Sicepat dll)</label>
+                                        </div>
+                                        <div class="form-group" style="margin-bottom:0.5rem;">
+                                            <label class="form-label" for="inputAutoFreeOngkirMin" style="font-size:0.78rem; font-weight:600;">Min. Belanja Otomatis Bebas Ongkir (Rp)</label>
+                                            <input type="number" id="inputAutoFreeOngkirMin" class="form-input" placeholder="Contoh: 75000" style="font-size:0.85rem; padding:0.4rem 0.6rem;">
+                                        </div>
+                                    </div>
+
+                                    <!-- Dynamic Vouchers CRUD Form -->
+                                    <div style="background:#f3f4f6; padding:1.25rem; border-radius:12px; border:1px solid var(--gray-200); margin-bottom:1.5rem;">
+                                        <span style="font-weight:700; font-size:0.88rem; color:var(--dark); display:block; margin-bottom:0.75rem;">➕ Buat Kode Voucher Promosi</span>
+                                        
+                                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">
+                                            <div>
+                                                <label class="form-label" for="newVoucherCode" style="font-size:0.7rem; font-weight:600;">Kode Voucher</label>
+                                                <input type="text" id="newVoucherCode" class="form-input" placeholder="Contoh: HEMATBOS" style="font-size:0.8rem; padding:0.4rem 0.6rem; text-transform:uppercase;">
+                                            </div>
+                                            <div>
+                                                <label class="form-label" for="newVoucherType" style="font-size:0.7rem; font-weight:600;">Jenis Promo</label>
+                                                <select id="newVoucherType" class="form-input" style="font-size:0.8rem; padding:0.4rem 0.6rem; height:auto;">
+                                                    <option value="diskon">🛍️ Diskon Belanja (%)</option>
+                                                    <option value="admin">🔵 Bebas Layanan Admin</option>
+                                                    <option value="ongkir">🟢 Gratis Ongkir (Biteship)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.75rem;">
+                                            <div>
+                                                <label class="form-label" for="newVoucherMin" style="font-size:0.7rem; font-weight:600;">Min. Belanja (Rp)</label>
+                                                <input type="number" id="newVoucherMin" class="form-input" placeholder="Contoh: 30000" style="font-size:0.8rem; padding:0.4rem 0.6rem;">
+                                            </div>
+                                            <div>
+                                                <label class="form-label" id="newVoucherMaxLabel" for="newVoucherMax" style="font-size:0.7rem; font-weight:600;">Maks. Potongan Diskon (Rp)</label>
+                                                <input type="number" id="newVoucherMax" class="form-input" placeholder="Isi 0 jika tanpa batas" style="font-size:0.8rem; padding:0.4rem 0.6rem;">
+                                            </div>
+                                        </div>
+                                        <div id="percentageInputGroup" style="display:block; margin-bottom:0.75rem;">
+                                            <label class="form-label" for="newVoucherPercentage" style="font-size:0.7rem; font-weight:600;">Persentase Diskon (%)</label>
+                                            <input type="number" id="newVoucherPercentage" class="form-input" placeholder="Contoh: 15" style="font-size:0.8rem; padding:0.4rem 0.6rem;" min="1" max="100" value="15">
+                                        </div>
+                                        <button type="button" onclick="addVoucher()" class="checkout-btn" style="margin:0; font-size:0.85rem; padding:0.5rem; font-weight:700; width:100%; border-radius:8px;">➕ Tambah Voucher Baru</button>
+                                    </div>
+
+                                    <!-- Table List of Dynamic Vouchers -->
+                                    <div style="margin-top:1.5rem;">
+                                        <span style="font-weight:700; font-size:0.88rem; color:var(--dark); display:block; margin-bottom:0.5rem;">🎟️ Daftar Kode Voucher Aktif</span>
+                                        <div style="overflow-x:auto;">
+                                            <table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left; border:1px solid var(--gray-200); border-radius:8px;">
+                                                <thead>
+                                                    <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); color:var(--gray-600); font-weight:700;">
+                                                        <th style="padding:0.6rem 0.5rem;">Kode</th>
+                                                        <th style="padding:0.6rem 0.5rem;">Jenis</th>
+                                                        <th style="padding:0.6rem 0.5rem;">Min. Belanja</th>
+                                                        <th style="padding:0.6rem 0.5rem;">Maks. Potongan</th>
+                                                        <th style="padding:0.6rem 0.5rem; text-align:center;">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="vouchersTableBody">
+                                                    <!-- Rendered dynamically by JS -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--gray-200); padding-top:1.25rem; margin-top:1.5rem;">
+                                    <button type="button" onclick="saveShopSettings()" class="checkout-btn" style="margin:0; width:auto; padding:0.6rem 1.5rem; border-radius:8px; font-weight:700;">Simpan Pengaturan Toko</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Sub-Modal: Add/Edit Product Form -->
+    <div class="modal-overlay" id="productFormModal" style="z-index: 6500;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="cart-title" id="productFormTitle">🥦 Edit Produk Sayur</h2>
+                <button class="close-btn" id="closeProdFormBtn">
+                    <svg fill="none" stroke="currentColor" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="productEditForm" onsubmit="event.preventDefault();">
+                    <input type="hidden" id="editProdId">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editProdName">Nama Sayuran</label>
+                        <input type="text" id="editProdName" class="form-input" required placeholder="Contoh: Wortel Madu">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editProdCategory">Kategori</label>
+                        <select id="editProdCategory" class="form-input" style="height: auto;" required>
+                            <option value="daun">🥬 Sayur Daun</option>
+                            <option value="buah">🍅 Sayur Buah</option>
+                            <option value="bumbu">🧄 Bumbu & Rempah</option>
+                            <option value="sembako">🌾 Sembako & Pelengkap</option>
+                        </select>
+                    </div>
+
+                    <!-- SUPABASE STORAGE IMAGE UPLOAD OPTION -->
+                    <div class="form-group" style="background:#f0fdf4; padding:0.75rem; border-radius:var(--border-radius-sm); border:1.5px dashed var(--primary); margin-bottom:1rem;">
+                        <label class="form-label" style="color:var(--primary-dark); display:flex; justify-content:space-between; align-items:center;">
+                            <span>📁 Unggah Foto ke Supabase CDN Storage</span>
+                            <span style="font-size:0.7rem; background:var(--primary); color:#fff; padding:1px 5px; border-radius:3px;">Super Cepat & Gratis</span>
+                        </label>
+                        <input type="file" id="editProdImageFile" accept="image/*" class="form-input" style="padding:0.35rem; font-size:0.85rem; background:var(--white);">
+                        <span id="uploadStatusText" style="font-size:0.75rem; color:var(--gray-500); display:block; margin-top:0.25rem;">Pilih foto sayuran dari HP/Komputer Anda untuk diunggah langsung ke CDN Storage.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editProdImages">Link URL Gambar (Bisa isi manual atau otomatis dari upload di atas)</label>
+                        <textarea id="editProdImages" class="form-input" required placeholder="Bila diupload di atas, kolom ini otomatis terisi. Bisa juga diisi manual dipisah tanda koma jika > 1."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editProdDesc">Keterangan Detail Produk</label>
+                        <textarea id="editProdDesc" class="form-input" required placeholder="Keterangan kandungan gizi, cara simpan..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editProdBadge">Badge Tag (Opsional)</label>
+                        <input type="text" id="editProdBadge" class="form-input" placeholder="Contoh: Organik / Promo / Bestseller">
+                    </div>
+
+                    <!-- Dynamic Variants Builder -->
+                    <div class="form-group" style="border-top:1px solid var(--gray-200); padding-top:0.75rem; margin-top:1rem;">
+                        <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Pilihan Varian Ukuran & Harga</span>
+                            <button type="button" class="qty-btn" id="addFormVariantBtn" style="border-radius:4px; width:auto; padding:0 0.5rem; height:24px;">+ Tambah</button>
+                        </label>
+                        <div id="formVariantsContainer" style="display:flex; flex-direction:column; gap:0.5rem;">
+                            <!-- Injected by JS dynamically -->
+                        </div>
+                    </div>
+
+                    <button type="submit" class="checkout-btn" style="margin-top:1.5rem;">Simpan Perubahan ke Google Sheets</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footnotes/Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3>Mbokde<span>Mart</span></h3>
+                <p>Penyedia kebutuhan sayur segar, buah-buahan lokal, bumbu masakan harian dengan jaminan kesegaran maksimal untuk kesehatan keluarga tercinta.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Hubungi Kami</h4>
+                <ul>
+                    <li>📍 Pasar Raya Indah Blok C No 5, Indonesia</li>
+                    <li>📞 WhatsApp: 0812-3456-7890</li>
+                    <li>✉️ Email: halo@mbokdemart.com</li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Jam Operasional</h4>
+                <ul>
+                    <li>Setiap Hari: 06.00 WIB - 17.00 WIB</li>
+                    <li>*Pemesanan di atas jam 17.00 akan dikirimkan keesokan paginya agar sayur tetap segar maksimal.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Mbokde Mart. Dikembangkan penuh kasih sayang oleh Keluarga Besar Mbokde. Bebas Biaya Server!</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification element -->
+    <div class="toast" id="toast">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span id="toastMsg">Pesanan sayur ditambahkan ke keranjang!</span>
+    </div>
+
+    <!-- Leaflet JS Library CDN -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Supabase Client Library CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Premium Modular Script Files (Linked Sequentially) -->
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="cart.js"></script>
+    <script src="checkout.js"></script>
+    <script src="seller.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
