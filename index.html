@@ -224,10 +224,10 @@
 
                         <!-- Google Maps Pinpoint & Paste Link Dual Methods Checkout Group -->
                         <div class="form-group" style="background: #f0fdf4; border: 1.5px dashed var(--primary); padding: 1.25rem; border-radius: var(--border-radius-sm); margin-bottom: 1.25rem;">
-                            <!-- Tab Selectors (Salin Link GMaps is default!) -->
+                            <!-- Tab Selectors (Pinpoint Map is default!) -->
                             <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 0.5rem;">
-                                <button type="button" id="tabMapLink" onclick="selectMapOption('link')" style="flex: 1; padding: 0.5rem; font-size: 0.75rem; font-weight: 700; border: none; background: var(--primary); color: #fff; border-radius: 6px; cursor: pointer; transition: var(--transition);">🔗 Salin Link Google Maps</button>
-                                <button type="button" id="tabMapInteractive" onclick="selectMapOption('interactive')" style="flex: 1; padding: 0.5rem; font-size: 0.75rem; font-weight: 700; border: none; background: #e2e8f0; color: #475569; border-radius: 6px; cursor: pointer; transition: var(--transition);">📍 Cari di Peta Pinpoint</button>
+                                <button type="button" id="tabMapInteractive" onclick="selectMapOption('interactive')" style="flex: 1; padding: 0.5rem; font-size: 0.75rem; font-weight: 700; border: none; background: var(--primary); color: #fff; border-radius: 6px; cursor: pointer; transition: var(--transition);">📍 Cari di Peta Pinpoint</button>
+                                <button type="button" id="tabMapLink" onclick="selectMapOption('link')" style="flex: 1; padding: 0.5rem; font-size: 0.75rem; font-weight: 700; border: none; background: #e2e8f0; color: #475569; border-radius: 6px; cursor: pointer; transition: var(--transition);">🔗 Salin Link Google Maps</button>
                             </div>
                             
                             <!-- TAB A: PASTE GOOGLE MAPS LINK COMPONENT (DEFAULT) -->
@@ -250,8 +250,8 @@
                                 </div>
                             </div>
                             
-                            <!-- TAB B: INTERACTIVE MAP COMPONENT (SECOND OPTION) -->
-                            <div id="mapInteractiveSection" style="display: none;">
+                            <!-- TAB B: INTERACTIVE MAP COMPONENT (DEFAULT VISIBLE) -->
+                            <div id="mapInteractiveSection">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                     <label class="form-label" style="color: var(--primary-dark); font-weight: 700; margin: 0; font-size: 0.8rem;">Geser marker merah ke atap rumah Anda:</label>
                                     <button type="button" onclick="toggleMapSize()" id="btnToggleMapSize" class="header-btn" style="padding: 2px 8px; font-size: 0.72rem; margin: 0; background: var(--white); border-color: var(--primary); color: var(--primary); border-radius: 4px;">🔍 Perbesar Peta</button>
@@ -295,61 +295,106 @@
                             </div>
                         </div>
 
-                        <div style="display:flex; justify-content: space-between; align-items:center; margin: 1.5rem 0 1rem;">
-                            <span style="font-weight: 700; color: var(--dark);">Estimasi Total Belanja:</span>
+                        <!-- ======================================= -->
+                        <!-- METODE PEMBAYARAN (dipindah ke Stage 1) -->
+                        <!-- ======================================= -->
+                        <div class="form-group" style="margin-top: 1.25rem; border-top: 1px solid var(--gray-200); padding-top: 1.25rem;">
+                            <label class="form-label">💳 Pilih Metode Pembayaran</label>
+                            <div class="payment-method-selector" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+                                <label class="delivery-card" style="flex-direction: row; align-items: center; justify-content: space-between; cursor: pointer; padding: 0.75rem 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="radio" name="paymentType" value="qris" style="accent-color: var(--primary); width:18px; height:18px;">
+                                        <span class="delivery-name">📱 Scan QRIS Instan</span>
+                                    </div>
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" style="height: 20px;">
+                                </label>
+                                <label class="delivery-card" style="flex-direction: row; align-items: center; justify-content: space-between; cursor: pointer; padding: 0.75rem 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="radio" name="paymentType" value="va" style="accent-color: var(--primary); width:18px; height:18px;">
+                                        <span class="delivery-name">🏦 Virtual Account (VA)</span>
+                                    </div>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--gray-500);">BCA, Mandiri, BRI</span>
+                                </label>
+                                <label class="delivery-card" style="flex-direction: row; align-items: center; justify-content: space-between; cursor: pointer; padding: 0.75rem 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="radio" name="paymentType" value="cod" style="accent-color: var(--primary); width:18px; height:18px;">
+                                        <span class="delivery-name">💵 COD (Bayar di Tempat)</span>
+                                    </div>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">Bebas Biaya</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- ======================================= -->
+                        <!-- KODE VOUCHER (dipindah ke Stage 1)      -->
+                        <!-- ======================================= -->
+                        <div class="form-group" style="border-top: 1px solid var(--gray-200); padding-top: 1.25rem;">
+                            <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
+                                <span>🎟️ Punya Kode Voucher?</span>
+                                <span id="voucherBadge" style="display: none; background: #ecfdf5; color: #047857; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px dashed #10b981;">Voucher Aktif</span>
+                            </label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="couponCodeInput" class="form-control" placeholder="Contoh: ONGKIRGRATIS" style="margin: 0; padding: 0.5rem 0.75rem; font-size: 0.85rem; text-transform: uppercase;">
+                                <button type="button" id="btnApplyCoupon" class="checkout-btn" style="width: auto; padding: 0.5rem 1.25rem; font-size: 0.85rem; margin: 0; background: var(--dark); border-radius: 8px;">Terapkan</button>
+                            </div>
+                            <div id="voucherErrorMessage" style="display: none; color: var(--accent); font-size: 0.75rem; font-weight: 700; margin-top: 0.35rem;"></div>
+                        </div>
+
+                        <!-- ======================================= -->
+                        <!-- RINGKASAN HARGA REAL-TIME (Stage 1)     -->
+                        <!-- ======================================= -->
+                        <div style="background: var(--gray-50); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--gray-200); margin-top: 0.5rem; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--gray-500);">Subtotal Produk:</span>
+                                <span id="breakdownSubtotal" style="font-weight: 600; color: var(--dark);">Rp 0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--gray-500);">Ongkos Kirim:</span>
+                                <span id="breakdownOngkir" style="font-weight: 600; color: var(--dark);">Rp 0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--gray-500);">Biaya Admin:</span>
+                                <span id="breakdownAdmin" style="font-weight: 600; color: var(--dark);">Rp 0</span>
+                            </div>
+                            <div id="breakdownDiskonRow" style="display: none; justify-content: space-between;">
+                                <span style="color: var(--gray-500);">Diskon Belanja:</span>
+                                <span id="breakdownDiskon" style="font-weight: 700; color: #10b981;">-Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content: space-between; align-items:center; margin: 1rem 0 0.5rem; border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
+                            <span style="font-weight: 700; color: var(--dark);">Estimasi Total:</span>
                             <strong id="stage1Total" style="font-size: 1.3rem; color: var(--primary-dark);">Rp 0</strong>
                         </div>
 
-                        <button type="submit" class="checkout-btn">
-                            Buat Pesanan & Lanjut ke Pembayaran
+                        <button type="submit" class="checkout-btn" style="margin-top: 0.5rem;">
+                            Pesan Sekarang ➔
                         </button>
                     </form>
                 </div>
 
-                <!-- STAGE 2: SHOPEE-LIKE PAYMENT VIEW -->
+                <!-- STAGE 2: PAYMENT ACTION (Ringkas - metode sudah dipilih di Stage 1) -->
                 <div id="checkoutStage2" style="display: none;">
                     <div style="background-color: var(--primary-light); color: var(--primary-dark); padding: 0.75rem; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 700; text-align: center; margin-bottom: 1.25rem;">
                         🎉 Pesanan Berhasil Dibuat! Order ID: <span id="paymentOrderId" style="font-family: monospace;">#MBK-XXXX</span>
                     </div>
 
-                    <div style="font-size: 0.9rem; color: var(--gray-500); margin-bottom: 1rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 0.5rem;">
-                        Pesanan Anda telah tercatat dengan status <strong style="color: var(--accent);">"Menunggu Pembayaran"</strong>. Silakan pilih metode pembayaran di bawah untuk menyelesaikan pesanan.
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Pilih Metode Pembayaran</label>
-                        <div class="payment-method-selector" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
-                            <label class="delivery-card" style="flex-direction: row; align-items: center; justify-content: space-between; cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <input type="radio" name="paymentType" value="qris" style="accent-color: var(--primary);">
-                                    <span class="delivery-name">📱 Scan QRIS Instan</span>
-                                </div>
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" style="height: 20px;">
-                            </label>
-                            <label class="delivery-card" style="flex-direction: row; align-items: center; justify-content: space-between; cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <input type="radio" name="paymentType" value="va" style="accent-color: var(--primary);">
-                                    <span class="delivery-name">🏦 Virtual Account (VA)</span>
-                                </div>
-                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--gray-500);">BCA, Mandiri, BRI</span>
-                            </label>
-                            <label class="delivery-card" style="flex-direction: row; align-items: center; justify-content: space-between; cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <input type="radio" name="paymentType" value="cod" style="accent-color: var(--primary);">
-                                    <span class="delivery-name">💵 COD (Bayar di Tempat)</span>
-                                </div>
-                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">Bebas Biaya</span>
-                            </label>
+                    <!-- Ringkasan Pembayaran (dari pilihan Stage 1) -->
+                    <div id="stage2Summary" style="background: var(--gray-50); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--gray-200); margin-bottom: 1.25rem; font-size: 0.85rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                            <span style="color: var(--gray-500);">Metode Bayar:</span>
+                            <span id="stage2PaymentMethodLabel" style="font-weight: 700; color: var(--dark);">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--gray-200); padding-top: 0.5rem; margin-top: 0.35rem;">
+                            <span style="font-weight: 700; color: var(--dark);">Total Tagihan:</span>
+                            <strong id="stage2Total" style="font-size: 1.2rem; color: var(--primary-dark);">Rp 0</strong>
                         </div>
                     </div>
 
-                    <!-- Dynamic payment container dependent on selected method -->
-                    <div id="paymentPlaceholderBox" class="payment-showcase" style="border: 2px dashed var(--gray-300); background-color: var(--gray-50); text-align: center; padding: 2.5rem 1.5rem; border-radius: 12px; margin: 1rem 0;">
-                        <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">💡</span>
-                        <h4 style="color: var(--gray-600); font-weight: 700; margin-bottom: 0.25rem;">Pilih Metode Pembayaran</h4>
-                        <p style="font-size: 0.85rem; color: var(--gray-500); line-height: 1.45; max-width: 320px; margin: 0 auto;">
-                            Silakan pilih salah satu metode pembayaran di atas untuk menyelesaikan pesanan Anda.
-                        </p>
+                    <!-- Dynamic payment action container -->
+                    <div id="paymentPlaceholderBox" class="payment-showcase" style="border: 2px dashed var(--gray-300); background-color: var(--gray-50); text-align: center; padding: 2.5rem 1.5rem; border-radius: 12px; margin: 1rem 0; display:none;">
+                        <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">⏳</span>
+                        <p style="font-size: 0.85rem; color: var(--gray-500);">Mempersiapkan metode pembayaran...</p>
                     </div>
 
                     <div id="midtransQrisConfirmBox" class="payment-showcase" style="border: 2px solid var(--primary); background: #f0fdf4; display: none; text-align: center; padding: 1.5rem; border-radius: 12px; margin: 1rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
@@ -449,46 +494,8 @@
                         </div>
                     </div>
 
-                     <!-- Voucher Input Box -->
-                    <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid var(--gray-200); padding-top: 1.25rem;">
-                        <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
-                            <span>🎟️ Punya Kode Voucher?</span>
-                            <span id="voucherBadge" style="display: none; background: #ecfdf5; color: #047857; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px dashed #10b981;">Voucher Aktif</span>
-                        </label>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="text" id="couponCodeInput" class="form-control" placeholder="Contoh: ONGKIRGRATIS" style="margin: 0; padding: 0.5rem 0.75rem; font-size: 0.85rem; text-transform: uppercase;">
-                            <button type="button" id="btnApplyCoupon" class="checkout-btn" style="width: auto; padding: 0.5rem 1.25rem; font-size: 0.85rem; margin: 0; background: var(--dark); border-radius: 8px;">Terapkan</button>
-                        </div>
-                        <div id="voucherErrorMessage" style="display: none; color: var(--accent); font-size: 0.75rem; font-weight: 700; margin-top: 0.35rem;"></div>
-                    </div>
-
-                    <!-- Detailed Price Breakdown Settle -->
-                    <div style="background: var(--gray-50); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--gray-200); margin-top: 1rem; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--gray-500);">Subtotal Produk:</span>
-                            <span id="breakdownSubtotal" style="font-weight: 600; color: var(--dark);">Rp 0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--gray-500);">Ongkos Kirim:</span>
-                            <span id="breakdownOngkir" style="font-weight: 600; color: var(--dark);">Rp 0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--gray-500);">Biaya Layanan Admin:</span>
-                            <span id="breakdownAdmin" style="font-weight: 600; color: var(--dark);">Rp 0</span>
-                        </div>
-                        <div id="breakdownDiskonRow" style="display: none; justify-content: space-between;">
-                            <span style="color: var(--gray-500);">Diskon Belanja:</span>
-                            <span id="breakdownDiskon" style="font-weight: 700; color: #10b981;">-Rp 0</span>
-                        </div>
-                    </div>
-
-                    <div style="display:flex; justify-content: space-between; align-items:center; margin: 1rem 0 1rem; border-top: 1px solid var(--gray-200); padding-top: 0.75rem;">
-                        <span style="font-weight: 700; color: var(--dark); font-size: 0.95rem;">Total Tagihan Akhir:</span>
-                        <strong id="stage2Total" style="font-size: 1.3rem; color: var(--primary-dark);">Rp 0</strong>
-                    </div>
-
                     <button type="button" class="checkout-btn" id="confirmPaymentBtn">
-                        Selesaikan Pembayaran
+                        Selesaikan Pembayaran ➔
                     </button>
                 </div>
 

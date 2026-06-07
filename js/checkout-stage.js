@@ -73,7 +73,7 @@ function navigateToStage(stageNum) {
             }
         }
         initCheckoutMap();
-        selectMapOption('link');
+        selectMapOption('interactive');
 
     } else if (stageNum === 2) {
         modalTitle.innerText = "💳 Tahap 2: Selesaikan Pembayaran";
@@ -81,22 +81,11 @@ function navigateToStage(stageNum) {
         startPaymentPolling();
         destroyMidtransSnapLibrary();
 
-        // Reset radio buttons
-        document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
-            radio.checked = false;
-            const card = radio.closest(".delivery-card");
-            if (card) card.classList.remove("selected");
-        });
-
         const couponInput = document.getElementById("couponCodeInput");
         if (couponInput) couponInput.value = "";
-        const badge = document.getElementById("voucherBadge");
-        if (badge) badge.style.display = "none";
-        const errorMsg = document.getElementById("voucherErrorMessage");
-        if (errorMsg) { errorMsg.style.display = "none"; errorMsg.innerText = ""; }
 
         const paymentPlaceholderBox = document.getElementById("paymentPlaceholderBox");
-        if (paymentPlaceholderBox) paymentPlaceholderBox.style.display = "block";
+        if (paymentPlaceholderBox) paymentPlaceholderBox.style.display = "none";
 
         const boxes = ["midtransQrisConfirmBox", "midtransVaConfirmBox", "midtransEmbedBox", "qrisPaymentBox", "vaPaymentBox", "codPaymentBox"];
         boxes.forEach(id => {
@@ -115,6 +104,8 @@ function navigateToStage(stageNum) {
             catch (e) { console.error("Error parsing saved payment session:", e); }
         }
 
+        let paymentType = "";
+
         if (savedSession) {
             appliedCoupons = savedSession.appliedCoupons || {
                 ongkir: false, ongkirCode: "", ongkirMaxDiscount: 0,
@@ -128,65 +119,106 @@ function navigateToStage(stageNum) {
             }
             selectedVaBank = savedSession.bankType || null;
             currentOrder.amountVersion = savedSession.amountVersion || 1;
+            paymentType = savedSession.paymentType || "";
 
-            updateStage2UI();
-
-            if (badge) {
-                const activeCodes = [];
-                if (appliedCoupons.ongkir) activeCodes.push(appliedCoupons.ongkirCode);
-                if (appliedCoupons.admin) activeCodes.push(appliedCoupons.adminCode);
-                if (appliedCoupons.diskon) activeCodes.push(appliedCoupons.diskonCode);
-                if (activeCodes.length > 0) {
-                    badge.style.display = "inline-block";
-                    badge.innerText = `🎟️ Voucher ${activeCodes.join(", ")} Terpasang`;
-                } else {
-                    badge.style.display = "none";
-                }
-            }
-
-            if (savedSession.paymentType) {
-                const radio = document.querySelector(`input[name="paymentType"][value="${savedSession.paymentType}"]`);
+            // Sync Stage 1 radio buttons with saved session
+            if (paymentType) {
+                const radio = document.querySelector(`input[name="paymentType"][value="${paymentType}"]`);
                 if (radio) {
                     radio.checked = true;
+                    document.querySelectorAll(".payment-method-selector .delivery-card").forEach(c => c.classList.remove("selected"));
                     const card = radio.closest(".delivery-card");
                     if (card) card.classList.add("selected");
                 }
-                if (paymentPlaceholderBox) paymentPlaceholderBox.style.display = "none";
-
-                if (savedSession.paymentType === "qris") {
-                    const midtransEmbedBox = document.getElementById("midtransEmbedBox");
-                    if (midtransEmbedBox) midtransEmbedBox.style.display = "block";
-                    triggerMidtransInlinePayment("qris");
-                } else if (savedSession.paymentType === "va" && savedSession.bankType) {
-                    const bankCards = document.querySelectorAll(".bank-opt-card");
-                    bankCards.forEach(c => {
-                        if (c.getAttribute("data-bank") === savedSession.bankType) {
-                            c.style.borderColor = "#3b82f6";
-                            c.style.backgroundColor = "#eff6ff";
-                            c.style.color = "#1d4ed8";
-                            c.style.boxShadow = "0 0 0 1px #3b82f6";
-                        }
-                    });
-                    const midtransEmbedBox = document.getElementById("midtransEmbedBox");
-                    if (midtransEmbedBox) midtransEmbedBox.style.display = "block";
-                    triggerMidtransInlinePayment("va", savedSession.bankType);
-                } else if (savedSession.paymentType === "cod") {
-                    const codBox = document.getElementById("codPaymentBox");
-                    if (codBox) codBox.style.display = "block";
-                    if (confirmBtn) {
-                        confirmBtn.style.display = "block";
-                        confirmBtn.innerText = "Selesaikan Pembayaran (COD) ➔";
-                    }
-                }
             }
         } else {
-            appliedCoupons = {
-                ongkir: false, ongkirCode: "", ongkirMaxDiscount: 0,
-                admin: false, adminCode: "",
-                diskon: false, diskonCode: "", diskonPercentage: 0, diskonMax: 0
-            };
+            // No saved session: read payment method directly from Stage 1 selection
+            const activeRadio = document.querySelector('input[name="paymentType"]:checked');
+            paymentType = activeRadio ? activeRadio.value : "";
             selectedVaBank = null;
-            updateStage2UI();
+        }
+
+        updateStage2UI();
+
+        // Update coupon badge
+        const badge = document.getElementById("voucherBadge");
+        if (badge) {
+            const activeCodes = [];
+            if (appliedCoupons.ongkir) activeCodes.push(appliedCoupons.ongkirCode);
+            if (appliedCoupons.admin) activeCodes.push(appliedCoupons.adminCode);
+            if (appliedCoupons.diskon) activeCodes.push(appliedCoupons.diskonCode);
+            if (activeCodes.length > 0) {
+                badge.style.display = "inline-block";
+                badge.innerText = `🎟️ Voucher ${activeCodes.join(", ")} Terpasang`;
+            } else {
+                badge.style.display = "none";
+            }
+        }
+
+        // Display correct payment UI box in Stage 2
+        const isMidtransConfigured = typeof MIDTRANS_CLIENT_KEY !== "undefined" && !MIDTRANS_CLIENT_KEY.includes("SB-Mid-client-XXXXXX");
+        const stage2PaymentMethodLabel = document.getElementById("stage2PaymentMethodLabel");
+
+        if (paymentType === "qris") {
+            if (stage2PaymentMethodLabel) stage2PaymentMethodLabel.innerText = "Scan QRIS Instan";
+            if (isMidtransConfigured) {
+                if (midtransQrisConfirmBox) midtransQrisConfirmBox.style.display = "block";
+            } else {
+                const qrisBox = document.getElementById("qrisPaymentBox");
+                if (qrisBox) qrisBox.style.display = "block";
+                if (confirmBtn) {
+                    confirmBtn.style.display = "block";
+                    confirmBtn.innerText = "Selesaikan Pembayaran ➔";
+                }
+            }
+        } else if (paymentType === "va") {
+            if (stage2PaymentMethodLabel) stage2PaymentMethodLabel.innerText = "Virtual Account (VA)";
+            if (isMidtransConfigured) {
+                if (typeof resetVaBankSelector === "function") resetVaBankSelector();
+                if (midtransVaConfirmBox) midtransVaConfirmBox.style.display = "block";
+            } else {
+                const vaBox = document.getElementById("vaPaymentBox");
+                if (vaBox) vaBox.style.display = "block";
+                if (confirmBtn) {
+                    confirmBtn.style.display = "block";
+                    confirmBtn.innerText = "Selesaikan Pembayaran ➔";
+                }
+            }
+        } else if (paymentType === "cod") {
+            if (stage2PaymentMethodLabel) stage2PaymentMethodLabel.innerText = "COD (Bayar di Tempat)";
+            const codBox = document.getElementById("codPaymentBox");
+            if (codBox) codBox.style.display = "block";
+            if (confirmBtn) {
+                confirmBtn.style.display = "block";
+                confirmBtn.innerText = "Selesaikan Pembayaran (COD) ➔";
+            }
+        } else {
+            if (stage2PaymentMethodLabel) stage2PaymentMethodLabel.innerText = "-";
+            if (paymentPlaceholderBox) paymentPlaceholderBox.style.display = "block";
+        }
+
+        // Auto trigger payment for midtrans if session already has token
+        if (savedSession && savedSession.paymentType) {
+            if (savedSession.paymentType === "qris" && savedSession.token) {
+                const midtransEmbedBox = document.getElementById("midtransEmbedBox");
+                if (midtransEmbedBox) midtransEmbedBox.style.display = "block";
+                if (midtransQrisConfirmBox) midtransQrisConfirmBox.style.display = "none";
+                triggerMidtransInlinePayment("qris");
+            } else if (savedSession.paymentType === "va" && savedSession.bankType && savedSession.token) {
+                const bankCards = document.querySelectorAll(".bank-opt-card");
+                bankCards.forEach(c => {
+                    if (c.getAttribute("data-bank") === savedSession.bankType) {
+                        c.style.borderColor = "#3b82f6";
+                        c.style.backgroundColor = "#eff6ff";
+                        c.style.color = "#1d4ed8";
+                        c.style.boxShadow = "0 0 0 1px #3b82f6";
+                    }
+                });
+                const midtransEmbedBox = document.getElementById("midtransEmbedBox");
+                if (midtransEmbedBox) midtransEmbedBox.style.display = "block";
+                if (midtransVaConfirmBox) midtransVaConfirmBox.style.display = "none";
+                triggerMidtransInlinePayment("va", savedSession.bankType);
+            }
         }
 
     } else if (stageNum === 3) {
@@ -345,6 +377,8 @@ function calculateStage2Costs() {
         }
     }
 
+    const stage1Total         = document.getElementById("stage1Total");
+    if (stage1Total) stage1Total.innerText = formatRupiah(finalTotal);
     if (stage2Total) stage2Total.innerText = formatRupiah(finalTotal);
 
     const midtransQrisFinalPrice = document.getElementById("midtransQrisFinalPrice");

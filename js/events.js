@@ -32,7 +32,7 @@ function setupEventListeners() {
     const checkoutBtn           = document.getElementById("checkoutBtn");
     const checkoutModal         = document.getElementById("checkoutModal");
     const closeCheckoutBtn      = document.getElementById("closeCheckoutBtn");
-    const deliveryCards         = document.querySelectorAll(".delivery-card");
+    const deliveryCards         = document.querySelectorAll("#deliveryGrid .delivery-card");
     const deliveryForm          = document.getElementById("deliveryForm");
     const confirmPaymentBtn     = document.getElementById("confirmPaymentBtn");
     const finishCheckoutBtn     = document.getElementById("finishCheckoutBtn");
@@ -180,9 +180,34 @@ function setupEventListeners() {
         cartOverlay.classList.add("open");
 
         const checkedSubtotal = calculateCheckedSubtotal();
-        document.getElementById("stage1Total").innerText = formatRupiah(checkedSubtotal + selectedShipping.cost);
+        
+        // Initialize currentOrder draft for Stage 1 real-time calculations
+        currentOrder = {
+            id:               "",
+            customerName:     "",
+            customerWhatsapp: "",
+            customerAddress:  "",
+            googleMapsLink:   "",
+            shippingMethod:   selectedShipping.method,
+            shippingCost:     selectedShipping.cost,
+            subtotal:         checkedSubtotal,
+            total:            checkedSubtotal + selectedShipping.cost,
+            items:            cart.filter(item => item.checked),
+            status:           "Menunggu Pembayaran",
+            date:             "",
+            amountVersion:    1
+        };
+
+        // Reset payment radios in Stage 1
+        const paymentRadios = document.querySelectorAll('input[name="paymentType"]');
+        paymentRadios.forEach(radio => {
+            radio.checked = false;
+            const card = radio.closest(".delivery-card");
+            if (card) card.classList.remove("selected");
+        });
 
         navigateToStage(1);
+        if (typeof calculateStage2Costs === "function") calculateStage2Costs();
         toggleBodyScroll(true);
     });
 
@@ -204,8 +229,12 @@ function setupEventListeners() {
                 name:   card.querySelector(".delivery-name").innerText
             };
 
-            const checkedSubtotal = calculateCheckedSubtotal();
-            document.getElementById("stage1Total").innerText = formatRupiah(checkedSubtotal + selectedShipping.cost);
+            if (currentOrder) {
+                currentOrder.shippingMethod = selectedShipping.method;
+                currentOrder.shippingCost   = selectedShipping.cost;
+            }
+
+            if (typeof calculateStage2Costs === "function") calculateStage2Costs();
         });
     });
 
@@ -218,6 +247,13 @@ function setupEventListeners() {
             return;
         }
 
+        const paymentRadio = document.querySelector('input[name="paymentType"]:checked');
+        if (!paymentRadio) {
+            alert("Harap pilih metode pembayaran terlebih dahulu!");
+            return;
+        }
+        const paymentType = paymentRadio.value;
+
         const name     = document.getElementById("customerName").value.trim();
         const whatsapp = document.getElementById("customerWhatsapp").value.trim();
         const address  = document.getElementById("customerAddress").value.trim();
@@ -228,23 +264,24 @@ function setupEventListeners() {
 
         const orderedItems = cart.filter(item => item.checked);
         const subtotal     = calculateCheckedSubtotal();
-        const total        = subtotal + selectedShipping.cost;
 
-        currentOrder = {
-            id:               generateRandomOrderId(),
-            customerName:     name,
-            customerWhatsapp: whatsapp,
-            customerAddress:  address,
-            googleMapsLink:   mapsLink,
-            shippingMethod:   selectedShipping.method,
-            shippingCost:     selectedShipping.cost,
-            subtotal:         subtotal,
-            total:            total,
-            items:            orderedItems,
-            status:           "Menunggu Pembayaran",
-            date:             new Date().toLocaleString("id-ID"),
-            amountVersion:    1
-        };
+        // Update currentOrder values before inserting into Supabase
+        currentOrder.id               = currentOrder.id || generateRandomOrderId();
+        currentOrder.customerName     = name;
+        currentOrder.customerWhatsapp = whatsapp;
+        currentOrder.customerAddress  = address;
+        currentOrder.googleMapsLink   = mapsLink;
+        currentOrder.shippingMethod   = selectedShipping.method;
+        currentOrder.shippingCost     = selectedShipping.cost;
+        currentOrder.subtotal         = subtotal;
+        currentOrder.items            = orderedItems;
+        currentOrder.status           = "Menunggu Pembayaran";
+        currentOrder.date             = new Date().toLocaleString("id-ID");
+        currentOrder.paymentMethod    = paymentType.toUpperCase();
+
+        // Re-calculate to get final total with discount and admin fees
+        if (typeof calculateStage2Costs === "function") calculateStage2Costs();
+        const finalTotal = currentOrder.total;
 
         showToast("Mengirim pesanan ke database...");
 
@@ -259,7 +296,8 @@ function setupEventListeners() {
             shipping_method:   currentOrder.shippingMethod,
             shipping_cost:     currentOrder.shippingCost,
             subtotal:          currentOrder.subtotal,
-            total:             currentOrder.total,
+            total:             finalTotal,
+            payment_method:    currentOrder.paymentMethod,
             items:             currentOrder.items,
             status:            currentOrder.status
         };
@@ -279,7 +317,7 @@ function setupEventListeners() {
     });
 
     // ----------------------------------------------------------------
-    // PAYMENT RADIO BUTTONS
+    // PAYMENT RADIO BUTTONS & GLOBAL RESET
     // ----------------------------------------------------------------
     const paymentRadios             = document.querySelectorAll('input[name="paymentType"]');
     const qrisBox                   = document.getElementById("qrisPaymentBox");
@@ -319,22 +357,25 @@ function setupEventListeners() {
         });
     });
 
-    function resetVaBankSelector() {
+    // Expose resetVaBankSelector globally
+    window.resetVaBankSelector = function() {
         selectedVaBank = null;
-        bankCards.forEach(c => {
+        const bCards = document.querySelectorAll(".bank-opt-card");
+        const btnVa = document.getElementById("btnConfirmVaPay");
+        bCards.forEach(c => {
             c.style.borderColor     = "var(--gray-300)";
             c.style.backgroundColor = "var(--white)";
             c.style.color           = "var(--dark)";
             c.style.boxShadow       = "none";
         });
-        if (btnConfirmVaPay) {
-            btnConfirmVaPay.setAttribute("disabled", "true");
-            btnConfirmVaPay.style.background = "var(--gray-300)";
-            btnConfirmVaPay.style.color      = "var(--gray-500)";
-            btnConfirmVaPay.style.cursor     = "not-allowed";
-            btnConfirmVaPay.innerText        = "Pilih Bank Terlebih Dahulu";
+        if (btnVa) {
+            btnVa.setAttribute("disabled", "true");
+            btnVa.style.background = "var(--gray-300)";
+            btnVa.style.color      = "var(--gray-500)";
+            btnVa.style.cursor     = "not-allowed";
+            btnVa.innerText        = "Pilih Bank Terlebih Dahulu";
         }
-    }
+    };
 
     const btnConfirmQrisPay = document.getElementById("btnConfirmQrisPay");
     if (btnConfirmQrisPay) {
@@ -356,53 +397,25 @@ function setupEventListeners() {
 
     paymentRadios.forEach(radio => {
         radio.addEventListener("change", (e) => {
-            qrisBox.style.display  = "none";
-            vaBox.style.display    = "none";
-            codBox.style.display   = "none";
-            if (paymentPlaceholderBox)  paymentPlaceholderBox.style.display  = "none";
-            if (midtransQrisConfirmBox) midtransQrisConfirmBox.style.display = "none";
-            if (midtransVaConfirmBox)   midtransVaConfirmBox.style.display   = "none";
-            if (midtransEmbedBox)       midtransEmbedBox.style.display       = "none";
-
-            confirmPaymentBtn.style.display = "block";
-
-            if (typeof destroyMidtransSnapLibrary === "function") destroyMidtransSnapLibrary();
-
+            // Highlight card
             document.querySelectorAll(".payment-method-selector .delivery-card").forEach(c => c.classList.remove("selected"));
-            e.target.closest(".delivery-card").classList.add("selected");
+            const card = e.target.closest(".delivery-card");
+            if (card) card.classList.add("selected");
 
-            const isMidtransConfigured = typeof MIDTRANS_CLIENT_KEY !== "undefined" && !MIDTRANS_CLIENT_KEY.includes("SB-Mid-client-XXXXXX");
-
-            if (e.target.value === "qris") {
-                if (isMidtransConfigured) {
-                    if (midtransQrisConfirmBox) midtransQrisConfirmBox.style.display = "block";
-                    confirmPaymentBtn.style.display = "none";
-                } else {
-                    qrisBox.style.display          = "block";
-                    confirmPaymentBtn.innerText    = "Selesaikan Pembayaran";
-                }
-            } else if (e.target.value === "va") {
-                if (isMidtransConfigured) {
-                    resetVaBankSelector();
-                    if (midtransVaConfirmBox) midtransVaConfirmBox.style.display = "block";
-                    confirmPaymentBtn.style.display = "none";
-                } else {
-                    vaBox.style.display         = "block";
-                    confirmPaymentBtn.innerText = "Selesaikan Pembayaran";
-                }
-            } else if (e.target.value === "cod") {
-                codBox.style.display        = "block";
-                confirmPaymentBtn.innerText = "Selesaikan Pembayaran (COD) ➔";
+            if (currentOrder) {
+                currentOrder.paymentMethod = e.target.value.toUpperCase();
             }
 
-            if (typeof calculateStage2Costs === "function")  calculateStage2Costs();
-            if (typeof savePaymentSession === "function")    savePaymentSession();
+            if (typeof calculateStage2Costs === "function") calculateStage2Costs();
         });
     });
 
     // STAGE 2 CONFIRM BUTTON
     confirmPaymentBtn.addEventListener("click", () => {
-        const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
+        const paymentRadio = document.querySelector('input[name="paymentType"]:checked');
+        const paymentType = paymentRadio ? paymentRadio.value : "";
+
+        if (!paymentType) return;
 
         if ((paymentType === "qris" || paymentType === "va") &&
             (typeof MIDTRANS_CLIENT_KEY !== "undefined" && !MIDTRANS_CLIENT_KEY.includes("SB-Mid-client-XXXXXX"))) {

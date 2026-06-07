@@ -566,8 +566,36 @@ function selectMapOption(option) {
 }
 
 // =====================================================================
-// RESOLVER LINK GOOGLE MAPS (melalui Supabase Edge / PHP Proxy)
+// RESOLVER LINK GOOGLE MAPS (client-side + proxy fallback)
 // =====================================================================
+function parseGmapsUrl(url) {
+    // 1. Check if url contains @lat,lng
+    let match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (match) {
+        return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+    }
+
+    // 2. Check query parameter
+    match = url.match(/[?&](query|q)=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (match) {
+        return { lat: parseFloat(match[2]), lng: parseFloat(match[3]) };
+    }
+
+    // 3. Check place coord format
+    match = url.match(/\/place\/[^\/]+\/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (match) {
+        return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+    }
+
+    // 4. Check !3d !4d query format
+    match = url.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+    if (match) {
+        return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+    }
+
+    return null;
+}
+
 async function resolveGmapsLinkInput() {
     const urlInput = document.getElementById("customerMapsPasteInput");
     if (!urlInput) return;
@@ -584,6 +612,16 @@ async function resolveGmapsLinkInput() {
     }
 
     showToast("⏳ Memproses & memverifikasi lokasi...");
+
+    // Try parsing client-side first
+    const clientCoords = parseGmapsUrl(url);
+    if (clientCoords) {
+        console.log("📍 Google Maps parsed client-side:", clientCoords);
+        applyResolvedCoords(clientCoords.lat, clientCoords.lng, url);
+        return;
+    }
+
+    // Fallback to proxy resolver (for maps.app.goo.gl short links)
     try {
         const headers = { "Content-Type": "application/json" };
         if (typeof BACKEND_URL !== 'undefined' && BACKEND_URL.includes("supabase.co/functions/v1/")) {
@@ -605,39 +643,43 @@ async function resolveGmapsLinkInput() {
         const lat = parseFloat(result.latitude);
         const lng = parseFloat(result.longitude);
 
-        customerCoords = { lat, lng };
-
-        const mapsLinkInput = document.getElementById("customerMapsLink");
-        if (mapsLinkInput) mapsLinkInput.value = url;
-
-        const checkoutMap = document.getElementById("checkoutMap");
-        const linkPreviewContainer = document.getElementById("checkoutMapLinkPreviewContainer");
-        if (checkoutMap) checkoutMap.style.display = "block";
-        if (linkPreviewContainer) linkPreviewContainer.style.display = "block";
-
-        if (checkoutMapInstance) {
-            checkoutMapInstance.setView([lat, lng], 16);
-            if (checkoutMarkerInstance) checkoutMarkerInstance.setLatLng([lat, lng]);
-            setTimeout(() => { checkoutMapInstance.invalidateSize(); }, 120);
-        }
-
-        isLocationConfirmed = false;
-
-        const btnConfirm = document.getElementById("btnConfirmLocation");
-        if (btnConfirm) {
-            btnConfirm.style.display = "flex";
-            btnConfirm.innerHTML     = "📍 Konfirmasi Lokasi & Cek Ongkir";
-            btnConfirm.style.background = "var(--primary)";
-            btnConfirm.style.color   = "white";
-            btnConfirm.style.cursor  = "pointer";
-        }
-
-        renderLocationPendingPlaceholder();
-        showToast("✔️ Lokasi Google Maps terhubung! Silakan klik tombol konfirmasi di bawah.");
+        applyResolvedCoords(lat, lng, url);
     } catch (err) {
         console.error("Gmaps link resolution error:", err);
-        alert(err.message || "Gagal memproses link! Silakan gunakan metode pinpoint manual.");
+        alert("Gagal memproses link secara otomatis! Silakan coba cari titik rumah Anda menggunakan tab 'Cari di Peta Pinpoint' di atas.");
     }
+}
+
+function applyResolvedCoords(lat, lng, url) {
+    customerCoords = { lat, lng };
+
+    const mapsLinkInput = document.getElementById("customerMapsLink");
+    if (mapsLinkInput) mapsLinkInput.value = url;
+
+    const checkoutMap = document.getElementById("checkoutMap");
+    const linkPreviewContainer = document.getElementById("checkoutMapLinkPreviewContainer");
+    if (checkoutMap) checkoutMap.style.display = "block";
+    if (linkPreviewContainer) linkPreviewContainer.style.display = "block";
+
+    if (checkoutMapInstance) {
+        checkoutMapInstance.setView([lat, lng], 16);
+        if (checkoutMarkerInstance) checkoutMarkerInstance.setLatLng([lat, lng]);
+        setTimeout(() => { checkoutMapInstance.invalidateSize(); }, 120);
+    }
+
+    isLocationConfirmed = false;
+
+    const btnConfirm = document.getElementById("btnConfirmLocation");
+    if (btnConfirm) {
+        btnConfirm.style.display = "flex";
+        btnConfirm.innerHTML     = "📍 Konfirmasi Lokasi & Cek Ongkir";
+        btnConfirm.style.background = "var(--primary)";
+        btnConfirm.style.color   = "white";
+        btnConfirm.style.cursor  = "pointer";
+    }
+
+    renderLocationPendingPlaceholder();
+    showToast("✔️ Lokasi Google Maps terhubung! Silakan klik tombol konfirmasi di bawah.");
 }
 
 // =====================================================================
