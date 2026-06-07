@@ -613,16 +613,22 @@ main {
 .qty-btn {
     border: 1px solid var(--gray-300);
     background: var(--white);
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     cursor: pointer;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: var(--transition);
+}
+
+.qty-counter .qty-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 1.25rem;
 }
 
 .qty-btn:hover {
@@ -1267,6 +1273,9 @@ footer {
     }
     .product-image-container {
         height: 130px;
+    }
+    .category-chip {
+        padding: 0.65rem 1.25rem;
     }
 }
 

@@ -161,6 +161,7 @@ function setupEventListeners() {
     const sheetDecQtyBtn = document.getElementById("sheetDecQtyBtn");
     const sheetIncQtyBtn = document.getElementById("sheetIncQtyBtn");
     const sheetAddCartBtn = document.getElementById("sheetAddCartBtn");
+    const sheetCancelBtn = document.getElementById("sheetCancelBtn");
     const searchInput = document.getElementById("searchInput");
     const categoryChips = document.querySelectorAll(".category-chip");
     const catalogTitle = document.getElementById("catalogTitle");
@@ -210,6 +211,11 @@ function setupEventListeners() {
         document.getElementById("sheetQtyVal").innerText = sheetQty;
         const price = activeProduct.variants[activeVariantIndex].price;
         document.getElementById("sheetProdPrice").innerText = formatRupiah(price * sheetQty);
+    });
+
+    sheetCancelBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeProductBottomSheet();
     });
 
     sheetAddCartBtn.addEventListener("click", () => {
