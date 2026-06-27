@@ -297,6 +297,16 @@ main {
 
 header.scrolled + main .categories-container {
     top: 53px;
+    padding: 0.35rem 0;
+}
+
+header.scrolled + main .chip-text {
+    display: none;
+}
+
+header.scrolled + main .category-list {
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .categories-title {
@@ -1471,6 +1481,7 @@ footer {
     visibility: hidden;
     overflow: hidden;
     transition: var(--transition);
+    overscroll-behavior-y: contain;
 }
 
 .admin-dashboard-page.open {
@@ -1793,10 +1804,11 @@ footer {
     .admin-content {
         height: calc(100vh - 60px);
         overflow-y: auto;
-        padding-bottom: 2rem;
+        overscroll-behavior-y: contain;
     }
     .admin-content-body {
         padding: 0.85rem;
+        padding-bottom: 95px;
     }
     .admin-topbar {
         position: sticky;

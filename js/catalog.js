@@ -52,9 +52,9 @@ function renderCategoryChips() {
     const categoryList = document.getElementById("categoryList");
     if (!categoryList) return;
 
-    let html = `<div class="category-chip active" data-category="semua">🌱 Semua Sayur</div>`;
+    let html = `<div class="category-chip active" data-category="semua">🌱 <span class="chip-text">Semua Sayur</span></div>`;
     html += categories.map(cat => `
-        <div class="category-chip" data-category="${cat.id}">${cat.icon} ${cat.name}</div>
+        <div class="category-chip" data-category="${cat.id}">${cat.icon} <span class="chip-text">${cat.name}</span></div>
     `).join('');
 
     categoryList.innerHTML = html;
