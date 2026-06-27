@@ -53,8 +53,10 @@ function changeSavedWaNumber() {
 // Helper to lock body scroll when dialog is open
 function toggleBodyScroll(lock) {
     if (lock) {
+        document.documentElement.classList.add("body-no-scroll");
         document.body.classList.add("body-no-scroll");
     } else {
+        document.documentElement.classList.remove("body-no-scroll");
         document.body.classList.remove("body-no-scroll");
     }
 }

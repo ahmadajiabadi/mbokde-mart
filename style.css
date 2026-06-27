@@ -55,6 +55,7 @@ body {
     padding-bottom: 95px; /* Space for sticky bottom cart bar */
 }
 
+html.body-no-scroll,
 body.body-no-scroll {
     overflow: hidden;
     height: 100vh;
@@ -550,7 +551,7 @@ header.scrolled + main .categories-container {
     height: 100%;
     background: rgba(0,0,0,0.4);
     backdrop-filter: blur(4px);
-    z-index: 1000;
+    z-index: 3000;
     opacity: 0;
     visibility: hidden;
     transition: var(--transition);
@@ -569,12 +570,13 @@ header.scrolled + main .categories-container {
     max-width: 420px;
     height: 100%;
     background: var(--white);
-    z-index: 1001;
+    z-index: 3001;
     box-shadow: -10px 0 30px rgba(0,0,0,0.1);
     transition: var(--transition);
     display: flex;
     flex-direction: column;
     visibility: hidden;
+    overscroll-behavior: contain;
 }
 
 .cart-drawer.open {
@@ -963,9 +965,10 @@ textarea.form-input {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(4px);
-    z-index: 1500;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 3000;
     opacity: 0;
     visibility: hidden;
     transition: var(--transition);
@@ -985,13 +988,14 @@ textarea.form-input {
     max-width: 500px;
     background: var(--white);
     border-radius: 24px 24px 0 0;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
-    z-index: 1501;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
+    z-index: 3001;
     transition: bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     max-height: 90vh;
     display: flex;
     flex-direction: column;
     visibility: hidden;
+    overscroll-behavior: contain;
 }
 
 .bottom-sheet.open {
@@ -2028,6 +2032,10 @@ footer {
         top: 65px; /* Adjust sticky position on smaller headers */
         margin-bottom: 1rem;
     }
+}
+
+header.scrolled .logo-text {
+    display: none;
 }
 
 
