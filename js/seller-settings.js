@@ -24,6 +24,7 @@ function selectSubSettings(paneId) {
     if (paneId === "subSettingsCourier") activeBtn = document.getElementById("btnSubCourier");
     else if (paneId === "subSettingsPayment") activeBtn = document.getElementById("btnSubPayment");
     else if (paneId === "subSettingsVoucher") activeBtn = document.getElementById("btnSubVoucher");
+    else if (paneId === "subSettingsSecurity") activeBtn = document.getElementById("btnSubSecurity");
 
     if (activeBtn) {
         activeBtn.style.color           = "var(--primary-dark)";
@@ -301,4 +302,56 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Bind submit form PIN Keamanan
+    const securitySettingsForm = document.getElementById("securitySettingsForm");
+    if (securitySettingsForm) {
+        securitySettingsForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            changeSellerPin();
+        });
+    }
 });
+
+// =====================================================================
+// UBAH PIN KEAMANAN
+// =====================================================================
+function changeSellerPin() {
+    const currentPinInput = document.getElementById("inputCurrentPin");
+    const newPinInput = document.getElementById("inputNewPin");
+    const confirmNewPinInput = document.getElementById("inputConfirmNewPin");
+
+    if (!currentPinInput || !newPinInput || !confirmNewPinInput) return;
+
+    const currentPinVal = currentPinInput.value.trim();
+    const newPinVal = newPinInput.value.trim();
+    const confirmNewPinVal = confirmNewPinInput.value.trim();
+
+    const activePin = localStorage.getItem("mbokde_seller_pin") || SELLER_PIN;
+
+    if (currentPinVal !== activePin) {
+        alert("PIN Lama salah!");
+        return;
+    }
+
+    if (newPinVal.length !== 4 || isNaN(newPinVal)) {
+        alert("PIN Baru harus berupa 4 digit angka!");
+        return;
+    }
+
+    if (newPinVal !== confirmNewPinVal) {
+        alert("Konfirmasi PIN baru tidak cocok!");
+        return;
+    }
+
+    localStorage.setItem("mbokde_seller_pin", newPinVal);
+    showToast("🔑 PIN Keamanan berhasil diubah!");
+
+    // Clear form
+    currentPinInput.value = "";
+    newPinInput.value = "";
+    confirmNewPinInput.value = "";
+
+    // Kembalikan sub settings tab ke awal
+    selectSubSettings("subSettingsCourier");
+}

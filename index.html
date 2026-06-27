@@ -18,24 +18,28 @@
 <body>
 
     <!-- Header / Navigation -->
-    <header>
+    <header id="mainHeader">
         <div class="header-container">
-            <a href="#" class="logo" id="headerLogo">
-                <img src="logo.jpg" alt="Mbokde Mart Logo">
-                Mbokde<span>Mart</span>
-            </a>
-            
-            <div class="search-bar">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <input type="text" id="searchInput" placeholder="Cari sayur bayam, cabai, bawang merah brebes...">
+            <div class="header-container-top">
+                <a href="#" class="logo" id="headerLogo">
+                    <img src="logo.jpg" alt="Mbokde Mart Logo">
+                    Mbokde<span>Mart</span>
+                </a>
             </div>
+            
+            <div class="header-container-bottom">
+                <div class="search-bar" style="flex: 1;">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Cari sayur bayam, cabai, bawang merah brebes...">
+                </div>
 
-            <div class="header-actions">
-                <button class="header-btn" id="myOrdersBtn" style="position: relative; display: inline-flex; align-items: center; gap: 0.25rem;">
-                    📋 <span class="orders-btn-text">Pesanan Saya</span> <span id="myOrdersBadge" style="display: none; background: var(--accent); color: white; border-radius: 50%; padding: 0.15rem 0.4rem; font-size: 0.7rem; font-weight: 800; min-width: 18px; text-align: center; line-height: 1;">0</span>
-                </button>
+                <div class="header-actions">
+                    <button class="header-btn" id="myOrdersBtn" style="position: relative; display: inline-flex; align-items: center; gap: 0.25rem;">
+                        📋 <span class="orders-btn-text">Pesanan Saya</span> <span id="myOrdersBadge" style="display: none; background: var(--accent); color: white; border-radius: 50%; padding: 0.15rem 0.4rem; font-size: 0.7rem; font-weight: 800; min-width: 18px; text-align: center; line-height: 1;">0</span>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -830,6 +834,9 @@
                                 <button type="button" class="submenu-btn" onclick="selectSubSettings('subSettingsVoucher')" id="btnSubVoucher" style="text-align: left; background: none; border: none; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--gray-500); display: flex; align-items: center; gap: 0.5rem; transition: var(--transition); width: 100%;">
                                     🎟️ Biaya & Kelola Voucher
                                 </button>
+                                <button type="button" class="submenu-btn" onclick="selectSubSettings('subSettingsSecurity')" id="btnSubSecurity" style="text-align: left; background: none; border: none; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--gray-500); display: flex; align-items: center; gap: 0.5rem; transition: var(--transition); width: 100%;">
+                                    🔑 Keamanan & PIN
+                                </button>
                             </div>
 
                             <!-- Sub-Menu Content Panel -->
@@ -1004,6 +1011,26 @@
                                             </table>
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- SUB-TAB 4: SECURITY & PIN -->
+                                <div id="subSettingsSecurity" class="subsettings-pane" style="display: none;">
+                                    <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem; color:var(--dark); display:flex; align-items:center; gap:0.5rem;">🔑 Ubah PIN Keamanan Dashboard</h3>
+                                    <form id="securitySettingsForm" onsubmit="event.preventDefault();">
+                                        <div class="form-group" style="margin-bottom:1rem;">
+                                            <label class="form-label" for="inputCurrentPin" style="font-weight:600; font-size:0.85rem;">PIN Lama</label>
+                                            <input type="password" id="inputCurrentPin" class="form-input" required maxlength="4" placeholder="Masukkan 4 digit PIN lama" style="font-size:0.9rem;">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom:1rem;">
+                                            <label class="form-label" for="inputNewPin" style="font-weight:600; font-size:0.85rem;">PIN Baru</label>
+                                            <input type="password" id="inputNewPin" class="form-input" required maxlength="4" placeholder="Masukkan 4 digit PIN baru" style="font-size:0.9rem;">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom:1.5rem;">
+                                            <label class="form-label" for="inputConfirmNewPin" style="font-weight:600; font-size:0.85rem;">Konfirmasi PIN Baru</label>
+                                            <input type="password" id="inputConfirmNewPin" class="form-input" required maxlength="4" placeholder="Konfirmasi PIN baru" style="font-size:0.9rem;">
+                                        </div>
+                                        <button type="submit" class="checkout-btn" style="width:100%; font-weight:700; font-size:0.85rem; margin:0;">Simpan PIN Baru</button>
+                                    </form>
                                 </div>
 
                                 <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--gray-200); padding-top:1.25rem; margin-top:1.5rem;">

@@ -52,6 +52,20 @@ function setupEventListeners() {
     const editProdImageFile     = document.getElementById("editProdImageFile");
 
     // ----------------------------------------------------------------
+    // STICKY HEADER SCROLL EVENT
+    // ----------------------------------------------------------------
+    window.addEventListener("scroll", () => {
+        const header = document.getElementById("mainHeader");
+        if (header) {
+            if (window.scrollY > 40) {
+                header.classList.add("scrolled");
+            } else {
+                header.classList.remove("scrolled");
+            }
+        }
+    });
+
+    // ----------------------------------------------------------------
     // BOTTOM SHEET — Qty & Keranjang
     // ----------------------------------------------------------------
     sheetDecQtyBtn.addEventListener("click", (e) => {

@@ -31,7 +31,9 @@ function verifySellerPin() {
     const sellerPinSection   = document.getElementById("sellerPinSection");
     const sellerControlPanel = document.getElementById("sellerControlPanel");
 
-    if (pin === SELLER_PIN) {
+    const activePin = localStorage.getItem("mbokde_seller_pin") || SELLER_PIN;
+
+    if (pin === activePin) {
         localStorage.setItem("mbokde_seller_logged", "true");
         sellerPinSection.style.display   = "none";
         sellerControlPanel.style.display = "flex";
