@@ -705,16 +705,20 @@
                 </div>
                 <nav class="sidebar-menu">
                     <button class="sidebar-link active" id="tabSellerDashboard">
-                        📊 Ringkasan Dasbor
+                        <span class="sidebar-icon">📊</span>
+                        <span class="sidebar-text">Ringkasan</span>
                     </button>
                     <button class="sidebar-link" id="tabSellerOrders">
-                        📦 Pesanan Masuk
+                        <span class="sidebar-icon">📦</span>
+                        <span class="sidebar-text">Pesanan</span>
                     </button>
                     <button class="sidebar-link" id="tabSellerProducts">
-                        🥦 Katalog Produk
+                        <span class="sidebar-icon">🥦</span>
+                        <span class="sidebar-text">Katalog</span>
                     </button>
                     <button class="sidebar-link" id="tabSellerSettings">
-                        ⚙️ Pengaturan Toko
+                        <span class="sidebar-icon">⚙️</span>
+                        <span class="sidebar-text">Pengaturan</span>
                     </button>
                 </nav>
                 <div class="sidebar-footer">
@@ -730,8 +734,9 @@
                 <header class="admin-topbar">
                     <h2 id="adminPageTitle">📊 Ringkasan Dasbor</h2>
                     <div style="display:flex; gap:0.5rem; align-items:center;">
-                        <span style="font-size:0.85rem; color:var(--gray-500); font-weight:600;">Status Server: <span style="color:var(--primary);">● Online</span></span>
+                        <span style="font-size:0.85rem; color:var(--gray-500); font-weight:600;" class="server-status-text">Status Server: <span style="color:var(--primary);">● Online</span></span>
                         <button class="header-btn" onclick="refreshAdminData()" style="padding:0.4rem 0.8rem; font-size:0.8rem;">🔄 Segarkan</button>
+                        <button class="header-btn mobile-logout-btn" onclick="sellerLogout()" style="padding:0.4rem 0.8rem; font-size:0.8rem; border-color:#f43f5e; color:#f43f5e;">🚪 Keluar</button>
                     </div>
                 </header>
 
