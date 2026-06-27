@@ -144,34 +144,34 @@ function applySellerOrdersFilter() {
                         <span style="font-size:0.75rem; font-weight:600; color:var(--gray-400);">${order.shipping_method || 'Kurir Toko'}</span>
                     </div>
 
-                    <!-- Action Buttons Panel -->
-                    <div style="display:flex; gap:0.35rem; margin-top:0.4rem; flex-wrap:wrap; align-items:stretch;">
-                        <!-- Primary Status Action Button -->
+                    <!-- Action/Interaction Panel -->
+                    <div style="display:flex; flex-direction:column; margin-top:0.4rem; width:100%;">
+                        <!-- Row 1: Primary Action -->
                         ${getPrimaryActionButton(order.id, order.status)}
                         
-                        <!-- Contact WA -->
-                        <a href="${getWaLink(order.customer_whatsapp)}" target="_blank" class="header-btn" style="flex:1; min-width:60px; text-align:center; padding:0.45rem; font-size:0.75rem; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:0.25rem; font-weight:700; color:#25D366; border-color:#25D366; text-decoration:none; transition:var(--transition);">
-                            💬 WA
-                        </a>
-                        
-                        <!-- Google Maps Route -->
-                        ${order.latitude ? `
-                            <a href="https://www.google.com/maps/dir/?api=1&destination=${order.latitude},${order.longitude}" target="_blank" class="header-btn" style="flex:1; min-width:65px; text-align:center; padding:0.45rem; font-size:0.75rem; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:0.25rem; font-weight:700; color:var(--primary); border-color:var(--primary); text-decoration:none; transition:var(--transition);">
-                                📍 Rute
+                        <!-- Row 2: Secondary Utilities -->
+                        <div style="display:flex; gap:0.35rem; align-items:center; width:100%;">
+                            <a href="${getWaLink(order.customer_whatsapp)}" target="_blank" class="header-btn" style="flex:1; text-align:center; padding:0.45rem 0.25rem; font-size:0.75rem; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:0.25rem; font-weight:700; color:#25D366; border-color:#25D366; text-decoration:none; transition:var(--transition); height:34px; box-sizing:border-box;">
+                                💬 WA
                             </a>
-                        ` : ''}
-                        
-                        <!-- Dropdown Status fallback -->
-                        <div style="position:relative; flex:1; min-width:75px;">
-                            <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding:0.45rem 0.25rem; font-size:0.75rem; border-radius:8px; border:1px solid var(--gray-300); background:#fff; cursor:pointer; font-weight:600; color:var(--gray-600); width:100%; height:100%;">
-                                <option value="" disabled selected>Ubah...</option>
-                                <option value="Menunggu Pembayaran">Belum Bayar</option>
-                                <option value="Lunas">Lunas</option>
-                                <option value="Sedang Disiapkan">Disiapkan</option>
-                                <option value="Sedang Dikirim">Dikirim</option>
-                                <option value="Selesai">Selesai</option>
-                                <option value="Dibatalkan">Batalkan</option>
-                            </select>
+                            
+                            ${order.latitude ? `
+                                <a href="https://www.google.com/maps/dir/?api=1&destination=${order.latitude},${order.longitude}" target="_blank" class="header-btn" style="flex:1; text-align:center; padding:0.45rem 0.25rem; font-size:0.75rem; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:0.25rem; font-weight:700; color:var(--primary); border-color:var(--primary); text-decoration:none; transition:var(--transition); height:34px; box-sizing:border-box;">
+                                    📍 Rute
+                                </a>
+                            ` : ''}
+                            
+                            <div style="flex:1; height:34px;">
+                                <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding:0 0.25rem; font-size:0.75rem; border-radius:8px; border:1px solid var(--gray-300); background:#fff; cursor:pointer; font-weight:600; color:var(--gray-600); width:100%; height:100%; box-sizing:border-box;">
+                                    <option value="" disabled selected>Ubah...</option>
+                                    <option value="Menunggu Pembayaran">Belum Bayar</option>
+                                    <option value="Lunas">Lunas</option>
+                                    <option value="Sedang Disiapkan">Disiapkan</option>
+                                    <option value="Sedang Dikirim">Dikirim</option>
+                                    <option value="Selesai">Selesai</option>
+                                    <option value="Dibatalkan">Batalkan</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -230,16 +230,16 @@ function getStatusColor(status) {
 
 function getPrimaryActionButton(orderId, status) {
     if (status === "Menunggu Pembayaran") {
-        return `<button onclick="updateOrderStatus('${orderId}', 'Lunas')" class="checkout-btn" style="flex:2; min-width:120px; margin:0; padding:0.45rem; font-size:0.75rem; border-radius:8px; font-weight:800;">💰 Tandai Lunas</button>`;
+        return `<button onclick="updateOrderStatus('${orderId}', 'Lunas')" class="checkout-btn" style="width:100%; margin:0; padding:0.5rem; font-size:0.8rem; border-radius:8px; font-weight:800; margin-bottom:0.35rem;">💰 Tandai Lunas</button>`;
     }
     if (status === "Lunas" || status === "Sudah Dibayar" || status === "COD - Diproses") {
-        return `<button onclick="updateOrderStatus('${orderId}', 'Sedang Disiapkan')" class="checkout-btn" style="flex:2; min-width:120px; margin:0; padding:0.45rem; font-size:0.75rem; border-radius:8px; font-weight:800; background:#f59e0b; border-color:#f59e0b;">📦 Siapkan Barang</button>`;
+        return `<button onclick="updateOrderStatus('${orderId}', 'Sedang Disiapkan')" class="checkout-btn" style="width:100%; margin:0; padding:0.5rem; font-size:0.8rem; border-radius:8px; font-weight:800; background:#f59e0b; border-color:#f59e0b; margin-bottom:0.35rem;">📦 Siapkan Barang</button>`;
     }
     if (status === "Sedang Disiapkan") {
-        return `<button onclick="updateOrderStatus('${orderId}', 'Sedang Dikirim')" class="checkout-btn" style="flex:2; min-width:120px; margin:0; padding:0.45rem; font-size:0.75rem; border-radius:8px; font-weight:800; background:#3b82f6; border-color:#3b82f6;">🚚 Kirim Sayur</button>`;
+        return `<button onclick="updateOrderStatus('${orderId}', 'Sedang Dikirim')" class="checkout-btn" style="width:100%; margin:0; padding:0.5rem; font-size:0.8rem; border-radius:8px; font-weight:800; background:#3b82f6; border-color:#3b82f6; margin-bottom:0.35rem;">🚚 Kirim Sayur</button>`;
     }
     if (status === "Sedang Dikirim") {
-        return `<button onclick="updateOrderStatus('${orderId}', 'Selesai')" class="checkout-btn" style="flex:2; min-width:120px; margin:0; padding:0.45rem; font-size:0.75rem; border-radius:8px; font-weight:800; background:#10b981; border-color:#10b981;">✅ Selesaikan</button>`;
+        return `<button onclick="updateOrderStatus('${orderId}', 'Selesai')" class="checkout-btn" style="flex:1 1 100%; width:100%; margin:0; padding:0.5rem; font-size:0.8rem; border-radius:8px; font-weight:800; background:#10b981; border-color:#10b981; margin-bottom:0.35rem;">✅ Selesaikan</button>`;
     }
     return '';
 }
