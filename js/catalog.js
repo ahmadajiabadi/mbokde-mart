@@ -21,9 +21,11 @@ async function loadProductsFromSheet() {
             console.log("No products found in Supabase, using mock products fallback.");
         }
         renderProducts(products);
+        renderBestsellers(products);
     } catch (err) {
         console.error("Failed to connect to Supabase, using mock products fallback:", err);
         renderProducts(products);
+        renderBestsellers(products);
     }
 }
 
@@ -182,4 +184,38 @@ function selectSheetVariant(idx) {
     document.querySelectorAll(".variant-chip-card").forEach((chip, i) => {
         chip.classList.toggle("selected", i === idx);
     });
+}
+
+function renderBestsellers(items) {
+    const bestsellerSectionContainer = document.getElementById("bestsellerSectionContainer");
+    const bestsellerScroll = document.getElementById("bestsellerScroll");
+    if (!bestsellerSectionContainer || !bestsellerScroll) return;
+
+    let bestsellers = items.filter(p => {
+        const badge = (p.badge || "").toLowerCase();
+        return badge.includes("best") || badge.includes("laris") || badge.includes("populer") || badge.includes("promo") || badge.includes("rekomendasi");
+    });
+
+    if (bestsellers.length === 0) {
+        bestsellers = items.filter(p => p.badge && p.badge !== "");
+    }
+    if (bestsellers.length === 0) {
+        bestsellers = items.slice(0, 5);
+    }
+
+    if (bestsellers.length === 0) {
+        bestsellerSectionContainer.style.display = "none";
+        return;
+    }
+
+    bestsellerSectionContainer.style.display = "block";
+    bestsellerScroll.innerHTML = bestsellers.map(prod => `
+        <div class="bestseller-card" onclick="openProductBottomSheet('${prod.id}')">
+            <div class="bestseller-img-container">
+                <img src="${prod.images[0]}" alt="${prod.name}" class="bestseller-img" loading="lazy">
+            </div>
+            <div class="bestseller-name">${prod.name}</div>
+            <div class="bestseller-price">${formatRupiah(prod.variants[0].price)}</div>
+        </div>
+    `).join('');
 }

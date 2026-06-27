@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadProductsFromSheet();
     setupEventListeners();
     updateCartTotals();
-    initTheme();
 });
 
 // =====================================================================
@@ -609,31 +608,3 @@ supabaseClient
         }
     })
     .subscribe();
-
-// =====================================================================
-// THEME TOGGLE
-// =====================================================================
-function initTheme() {
-    const themeToggleBtn = document.getElementById("themeToggleBtn");
-    if (!themeToggleBtn) return;
-
-    const isDark = document.documentElement.classList.contains("dark-mode") || document.body.classList.contains("dark-mode");
-    themeToggleBtn.innerText = isDark ? "☀️" : "🌙";
-
-    themeToggleBtn.addEventListener("click", () => {
-        const currentlyDark = document.documentElement.classList.contains("dark-mode");
-        if (currentlyDark) {
-            document.documentElement.classList.remove("dark-mode");
-            document.body.classList.remove("dark-mode");
-            localStorage.setItem("mbokde_theme", "light");
-            themeToggleBtn.innerText = "🌙";
-            showToast("☀️ Mode Terang Aktif");
-        } else {
-            document.documentElement.classList.add("dark-mode");
-            document.body.classList.add("dark-mode");
-            localStorage.setItem("mbokde_theme", "dark");
-            themeToggleBtn.innerText = "☀️";
-            showToast("🌙 Mode Gelap Aktif");
-        }
-    });
-}

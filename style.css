@@ -67,7 +67,7 @@ header {
     -webkit-backdrop-filter: blur(12px);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 2000;
     border-bottom: 1px solid var(--gray-200);
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
@@ -242,7 +242,15 @@ main {
 
 /* Categories */
 .categories-container {
+    position: sticky;
+    top: 73px;
+    z-index: 1900;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 0.6rem 0;
     margin-bottom: 2rem;
+    border-bottom: 1px solid var(--gray-100);
 }
 
 .categories-title {
@@ -1875,5 +1883,107 @@ footer {
 .floating-action-bar-close:hover {
     color: var(--gray-600);
 }
+
+/* Bestseller Section */
+.bestseller-section {
+    margin-bottom: 2rem;
+    padding: 0.5rem 0;
+}
+
+.bestseller-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.bestseller-scroll {
+    display: flex;
+    gap: 0.85rem;
+    overflow-x: auto;
+    padding: 0.25rem 0.15rem 0.85rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-light) transparent;
+    -webkit-overflow-scrolling: touch;
+}
+
+.bestseller-scroll::-webkit-scrollbar {
+    height: 5px;
+}
+
+.bestseller-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--primary-light);
+    border-radius: 4px;
+}
+
+/* Compact Product Card for Bestsellers */
+.bestseller-card {
+    flex: 0 0 145px;
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.bestseller-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+}
+
+.bestseller-img-container {
+    width: 100%;
+    height: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 0.4rem;
+    position: relative;
+}
+
+.bestseller-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bestseller-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bestseller-price {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-top: auto;
+}
+
+/* Mobile optimizations for Buyer UI */
+@media (max-width: 768px) {
+    .orders-btn-text {
+        display: none;
+    }
+    .categories-title {
+        display: none;
+    }
+    .categories-container {
+        top: 65px; /* Adjust sticky position on smaller headers */
+        margin-bottom: 1rem;
+    }
+}
+
 
 
