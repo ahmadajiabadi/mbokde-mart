@@ -1710,3 +1710,170 @@ footer {
     }
 }
 
+/* =====================================================================
+   ADDITIONAL STYLES: CATEGORY ACCORDIONS & BULK MOVE ACTION BAR
+   ===================================================================== */
+.category-accordion {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.category-accordion:hover {
+    border-color: var(--primary-light);
+}
+
+.accordion-header {
+    background: var(--gray-50);
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: var(--transition);
+}
+
+.accordion-header:hover {
+    background: var(--primary-light-hover);
+}
+
+.accordion-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: var(--dark);
+    font-size: 1rem;
+}
+
+.accordion-badge {
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.accordion-arrow {
+    font-size: 0.8rem;
+    color: var(--gray-400);
+    transition: transform var(--transition-speed) ease;
+}
+
+.category-accordion.open .accordion-arrow {
+    transform: rotate(180deg);
+}
+
+.accordion-body {
+    padding: 1.25rem;
+    border-top: 1px solid var(--gray-200);
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.category-accordion.open .accordion-body {
+    display: grid;
+}
+
+/* Custom Checkbox for Bulk Actions */
+.product-check-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 0.25rem;
+}
+
+.product-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--gray-300);
+    cursor: pointer;
+    accent-color: var(--primary);
+    transition: var(--transition);
+}
+
+/* Floating Action Bar for Bulk Moves */
+.floating-action-bar {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    z-index: 7000;
+    transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    width: max-content;
+    max-width: 90%;
+}
+
+.floating-action-bar.show {
+    bottom: 24px;
+}
+
+.floating-action-bar-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.floating-action-bar-select {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.82rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--dark);
+    font-weight: 600;
+    outline: none;
+}
+
+.floating-action-bar-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 0.4rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.floating-action-bar-btn:hover {
+    background: var(--primary-dark);
+}
+
+.floating-action-bar-close {
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    transition: var(--transition);
+}
+
+.floating-action-bar-close:hover {
+    color: var(--gray-600);
+}
+
+

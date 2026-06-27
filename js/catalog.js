@@ -8,6 +8,9 @@
 // REAL-TIME PRODUCT CATALOG SYNC WITH SUPABASE
 async function loadProductsFromSheet() {
     try {
+        // Load categories dynamically first
+        await loadCategoriesFromSupabase();
+
         const { data, error } = await supabaseClient.from('produk').select('*');
         if (error) throw error;
 
@@ -21,6 +24,42 @@ async function loadProductsFromSheet() {
     } catch (err) {
         console.error("Failed to connect to Supabase, using mock products fallback:", err);
         renderProducts(products);
+    }
+}
+
+async function loadCategoriesFromSupabase() {
+    try {
+        const { data, error } = await supabaseClient.from('kategori').select('*').order('name');
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+            categories = data;
+            console.log("Categories successfully synchronized from Supabase!");
+        }
+    } catch (err) {
+        console.error("Failed to load categories from Supabase, using local fallback:", err);
+    }
+    renderCategoryChips();
+    // Pre-fill dropdowns in product edit form
+    if (typeof renderCategoryDropdownOptions === 'function') {
+        renderCategoryDropdownOptions();
+    }
+}
+
+function renderCategoryChips() {
+    const categoryList = document.getElementById("categoryList");
+    if (!categoryList) return;
+
+    let html = `<div class="category-chip active" data-category="semua">🌱 Semua Sayur</div>`;
+    html += categories.map(cat => `
+        <div class="category-chip" data-category="${cat.id}">${cat.icon} ${cat.name}</div>
+    `).join('');
+
+    categoryList.innerHTML = html;
+
+    // Bind event listeners to newly created category chips
+    if (typeof setupCategoryChipListeners === 'function') {
+        setupCategoryChipListeners();
     }
 }
 

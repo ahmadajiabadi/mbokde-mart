@@ -22,7 +22,6 @@ function setupEventListeners() {
     const sheetAddCartBtn       = document.getElementById("sheetAddCartBtn");
     const sheetCancelBtn        = document.getElementById("sheetCancelBtn");
     const searchInput           = document.getElementById("searchInput");
-    const categoryChips         = document.querySelectorAll(".category-chip");
     const catalogTitle          = document.getElementById("catalogTitle");
     const bottomCartBar         = document.getElementById("bottomCartBar");
     const cartDrawer            = document.getElementById("cartDrawer");
@@ -117,21 +116,30 @@ function setupEventListeners() {
         filterProducts(query, activeCategory);
     });
 
-    categoryChips.forEach(chip => {
-        chip.addEventListener("click", () => {
-            categoryChips.forEach(c => c.classList.remove("active"));
-            chip.classList.add("active");
+    window.setupCategoryChipListeners = function() {
+        const categoryChips = document.querySelectorAll(".category-chip");
+        const searchInput = document.getElementById("searchInput");
+        const catalogTitle = document.getElementById("catalogTitle");
 
-            const activeCategory = chip.dataset.category;
-            const query          = searchInput.value.toLowerCase().trim();
+        categoryChips.forEach(chip => {
+            chip.addEventListener("click", () => {
+                categoryChips.forEach(c => c.classList.remove("active"));
+                chip.classList.add("active");
 
-            catalogTitle.innerText = activeCategory === "semua"
-                ? "Semua Produk"
-                : `Kategori: ${chip.innerText.substring(2)}`;
+                const activeCategory = chip.dataset.category;
+                const query          = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
-            filterProducts(query, activeCategory);
+                if (catalogTitle) {
+                    catalogTitle.innerText = activeCategory === "semua"
+                        ? "Semua Produk"
+                        : `Kategori: ${chip.innerText.substring(2)}`;
+                }
+
+                filterProducts(query, activeCategory);
+            });
         });
-    });
+    };
+    setupCategoryChipListeners();
 
     // ----------------------------------------------------------------
     // KERANJANG

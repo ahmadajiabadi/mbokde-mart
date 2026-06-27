@@ -14,6 +14,12 @@ function loadAllProductsForSeller() {
     const sellerProductsList = document.getElementById("sellerProductsList");
     sellerProductsList.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--gray-500);">Memuat katalog sayuran...</div>`;
 
+    if (typeof renderCategoryDropdownOptions === 'function') {
+        renderCategoryDropdownOptions();
+    }
+
+    hideBulkMoveActionBar();
+
     supabaseClient.from('produk')
         .select('*')
         .then(({ data, error }) => {
@@ -23,20 +29,96 @@ function loadAllProductsForSeller() {
                 products = data;
                 renderProducts(products);
 
-                sellerProductsList.innerHTML = data.map(prod => `
-                    <div style="background:#fff; border:1px solid var(--gray-200); border-radius:12px; padding:1rem; display:flex; gap:0.75rem; align-items:center; box-shadow:var(--shadow-sm);">
-                        <img src="${prod.images[0]}" alt="${prod.name}" style="width:60px; height:60px; border-radius:8px; object-fit:cover; flex-shrink:0;">
-                        <div style="flex:1; overflow:hidden;">
-                            <strong style="font-size:0.9rem; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--dark);">${prod.name}</strong>
-                            <span style="font-size:0.8rem; color:var(--primary); font-weight:700;">${formatRupiah(prod.variants[0].price)}</span>
-                            <span style="font-size:0.72rem; color:var(--gray-400); display:block;">Kategori: ${prod.category}</span>
+                let accordionHtml = categories.map(cat => {
+                    const catProducts = products.filter(p => p.category === cat.id);
+                    const prodCount = catProducts.length;
+
+                    let productRows = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--gray-400); font-size: 0.85rem;">Belum ada produk di kategori ini.</div>`;
+
+                    if (prodCount > 0) {
+                        productRows = catProducts.map(prod => `
+                            <div style="background:#fff; border:1px solid var(--gray-200); border-radius:12px; padding:0.85rem 1rem; display:flex; gap:0.75rem; align-items:center; box-shadow:var(--shadow-sm); transition: var(--transition);">
+                                <div class="product-check-wrapper">
+                                    <input type="checkbox" class="product-checkbox" data-id="${prod.id}" onchange="onProductSelectChange()">
+                                </div>
+                                <img src="${prod.images[0]}" alt="${prod.name}" style="width:50px; height:50px; border-radius:8px; object-fit:cover; flex-shrink:0;">
+                                <div style="flex:1; overflow:hidden;">
+                                    <strong style="font-size:0.85rem; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--dark);">${prod.name}</strong>
+                                    <span style="font-size:0.78rem; color:var(--primary); font-weight:700;">${formatRupiah(prod.variants[0].price)}</span>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:0.3rem; flex-shrink:0;">
+                                    <button onclick="openEditProductModal('${prod.id}')" style="background:var(--primary-light); color:var(--primary); border:none; padding:0.3rem 0.5rem; font-size:0.72rem; font-weight:700; border-radius:6px; cursor:pointer;">Edit</button>
+                                    <button onclick="deleteProductFromSheet('${prod.id}')" style="background:#fff1f2; color:#f43f5e; border:none; padding:0.3rem 0.5rem; font-size:0.72rem; font-weight:700; border-radius:6px; cursor:pointer;">Hapus</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+
+                    return `
+                        <div class="category-accordion" id="accordion-${cat.id}">
+                            <div class="accordion-header" onclick="toggleAccordion('accordion-${cat.id}')">
+                                <div class="accordion-title">
+                                    <span>${cat.icon}</span>
+                                    <span>${cat.name}</span>
+                                    <span class="accordion-badge">${prodCount}</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:0.5rem;">
+                                    <button onclick="openEditProductModal(null, '${cat.id}'); event.stopPropagation();" style="background:var(--primary); color:#fff; border:none; padding:0.3rem 0.6rem; font-size:0.72rem; font-weight:700; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:0.25rem;">
+                                        ➕ Tambah
+                                    </button>
+                                    <span class="accordion-arrow">▼</span>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                ${productRows}
+                            </div>
                         </div>
-                        <div style="display:flex; flex-direction:column; gap:0.35rem; flex-shrink:0;">
-                            <button onclick="openEditProductModal('${prod.id}')" style="background:var(--primary-light); color:var(--primary); border:none; padding:0.35rem 0.6rem; font-size:0.75rem; font-weight:700; border-radius:6px; cursor:pointer;">Edit</button>
-                            <button onclick="deleteProductFromSheet('${prod.id}')" style="background:#fff1f2; color:#f43f5e; border:none; padding:0.35rem 0.6rem; font-size:0.75rem; font-weight:700; border-radius:6px; cursor:pointer;">Hapus</button>
+                    `;
+                }).join('');
+
+                const activeCatIds = categories.map(c => c.id);
+                const otherProducts = products.filter(p => !activeCatIds.includes(p.category));
+                if (otherProducts.length > 0) {
+                    let otherRows = otherProducts.map(prod => `
+                        <div style="background:#fff; border:1px solid var(--gray-200); border-radius:12px; padding:0.85rem 1rem; display:flex; gap:0.75rem; align-items:center; box-shadow:var(--shadow-sm);">
+                            <div class="product-check-wrapper">
+                                <input type="checkbox" class="product-checkbox" data-id="${prod.id}" onchange="onProductSelectChange()">
+                            </div>
+                            <img src="${prod.images[0]}" alt="${prod.name}" style="width:50px; height:50px; border-radius:8px; object-fit:cover; flex-shrink:0;">
+                            <div style="flex:1; overflow:hidden;">
+                                <strong style="font-size:0.85rem; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--dark);">${prod.name}</strong>
+                                <span style="font-size:0.78rem; color:var(--primary); font-weight:700;">${formatRupiah(prod.variants[0].price)}</span>
+                                <span style="font-size:0.68rem; color:#f43f5e; display:block;">Kategori tidak valid: ${prod.category}</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:0.3rem; flex-shrink:0;">
+                                <button onclick="openEditProductModal('${prod.id}')" style="background:var(--primary-light); color:var(--primary); border:none; padding:0.3rem 0.5rem; font-size:0.72rem; font-weight:700; border-radius:6px; cursor:pointer;">Edit</button>
+                                <button onclick="deleteProductFromSheet('${prod.id}')" style="background:#fff1f2; color:#f43f5e; border:none; padding:0.3rem 0.5rem; font-size:0.72rem; font-weight:700; border-radius:6px; cursor:pointer;">Hapus</button>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `).join('');
+
+                    accordionHtml += `
+                        <div class="category-accordion" id="accordion-other">
+                            <div class="accordion-header" onclick="toggleAccordion('accordion-other')">
+                                <div class="accordion-title">
+                                    <span>📦</span>
+                                    <span>Kategori Lainnya (Perlu Pindahan)</span>
+                                    <span class="accordion-badge" style="background:#f43f5e;">${otherProducts.length}</span>
+                                </div>
+                                <span class="accordion-arrow">▼</span>
+                            </div>
+                            <div class="accordion-body">
+                                ${otherRows}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                sellerProductsList.innerHTML = accordionHtml;
+
+                if (categories.length > 0) {
+                    toggleAccordion(`accordion-${categories[0].id}`, true);
+                }
             } else {
                 sellerProductsList.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--gray-500);">Katalog kosong.</div>`;
             }
@@ -50,7 +132,7 @@ function loadAllProductsForSeller() {
 // =====================================================================
 // BUKA FORM EDIT / TAMBAH PRODUK
 // =====================================================================
-function openEditProductModal(prodId = null) {
+function openEditProductModal(prodId = null, categoryId = null) {
     const formVariantsContainer = document.getElementById("formVariantsContainer");
     formVariantsContainer.innerHTML = "";
     document.getElementById("editProdImageFile").value = "";
@@ -83,7 +165,7 @@ function openEditProductModal(prodId = null) {
         productFormTitle.innerText = "➕ Tambah Sayuran Baru";
         editProdId.value       = "p" + Date.now();
         editProdName.value     = "";
-        editProdCategory.value = "daun";
+        editProdCategory.value = categoryId || (categories[0] ? categories[0].id : "daun");
         editProdImages.value   = "";
         editProdDesc.value     = "";
         editProdBadge.value    = "";
@@ -233,3 +315,86 @@ async function uploadImageToSupabaseStorage(file) {
         uploadStatusText.style.color = "#f43f5e";
     }
 }
+
+// =====================================================================
+// HELPER DAN EVENT HANDLER ACCORDION & BULK ACTIONS
+// =====================================================================
+
+function toggleAccordion(accordionId, forceOpen = false) {
+    const accordion = document.getElementById(accordionId);
+    if (!accordion) return;
+
+    if (forceOpen) {
+        accordion.classList.add("open");
+    } else {
+        accordion.classList.toggle("open");
+    }
+}
+
+function onProductSelectChange() {
+    const checkedBoxes = document.querySelectorAll(".product-checkbox:checked");
+    const count = checkedBoxes.length;
+
+    const bulkMoveActionBar = document.getElementById("bulkMoveActionBar");
+    const bulkMoveSelectedText = document.getElementById("bulkMoveSelectedText");
+
+    if (count > 0) {
+        if (bulkMoveSelectedText) bulkMoveSelectedText.innerText = `${count} produk terpilih`;
+        if (bulkMoveActionBar) bulkMoveActionBar.classList.add("show");
+    } else {
+        hideBulkMoveActionBar();
+    }
+}
+
+function hideBulkMoveActionBar() {
+    const bulkMoveActionBar = document.getElementById("bulkMoveActionBar");
+    if (bulkMoveActionBar) bulkMoveActionBar.classList.remove("show");
+
+    // Uncheck all boxes
+    document.querySelectorAll(".product-checkbox").forEach(cb => cb.checked = false);
+}
+
+async function executeBulkMove() {
+    const targetCategorySelect = document.getElementById("bulkMoveTargetCategory");
+    const targetCategory = targetCategorySelect.value;
+
+    if (!targetCategory) {
+        alert("Pilih kategori tujuan terlebih dahulu!");
+        return;
+    }
+
+    const checkedBoxes = document.querySelectorAll(".product-checkbox:checked");
+    const selectedIds = Array.from(checkedBoxes).map(cb => cb.getAttribute("data-id"));
+
+    if (selectedIds.length === 0) {
+        alert("Pilih produk yang ingin dipindahkan terlebih dahulu!");
+        return;
+    }
+
+    showToast(`Memindahkan ${selectedIds.length} produk...`);
+
+    try {
+        // Bulk update category for selected products in Supabase
+        const { error } = await supabaseClient
+            .from('produk')
+            .update({ category: targetCategory })
+            .in('id', selectedIds);
+
+        if (error) throw error;
+
+        showToast("✔️ Produk berhasil dipindahkan!");
+        hideBulkMoveActionBar();
+
+        // Refresh lists
+        await loadProductsFromSheet();
+        loadAllProductsForSeller();
+    } catch (err) {
+        console.error("Gagal melakukan bulk move:", err);
+        alert("Gagal memindahkan produk ke kategori lain: " + err.message);
+    }
+}
+
+// Bind Bulk Actions UI buttons
+document.getElementById("confirmBulkMoveBtn")?.addEventListener("click", executeBulkMove);
+document.getElementById("cancelBulkMoveBtn")?.addEventListener("click", hideBulkMoveActionBar);
+

@@ -116,6 +116,13 @@ const MOCK_PRODUCTS = [
 ];
 
 // GLOBAL STATES
+const MOCK_CATEGORIES = [
+    { id: "daun", name: "Sayur Daun", icon: "🥬", image_url: "" },
+    { id: "buah", name: "Sayur Buah", icon: "🍅", image_url: "" },
+    { id: "bumbu", name: "Bumbu & Rempah", icon: "🧄", image_url: "" },
+    { id: "sembako", name: "Sembako & Pelengkap", icon: "🌾", image_url: "" }
+];
+let categories = [...MOCK_CATEGORIES];
 let products = [...MOCK_PRODUCTS];
 let cart = [];
 let selectedShipping = {

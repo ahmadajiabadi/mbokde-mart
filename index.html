@@ -77,11 +77,7 @@
         <section class="categories-container" id="katalog">
             <h2 class="categories-title">Pilih Kategori Belanja</h2>
             <div class="category-list" id="categoryList">
-                <div class="category-chip active" data-category="semua">🌱 Semua Sayur</div>
-                <div class="category-chip" data-category="daun">🥬 Sayur Daun</div>
-                <div class="category-chip" data-category="buah">🍅 Sayur Buah</div>
-                <div class="category-chip" data-category="bumbu">🧄 Bumbu & Rempah</div>
-                <div class="category-chip" data-category="sembako">🌾 Sembako & Pelengkap</div>
+                <!-- Di-render dinamis oleh JS -->
             </div>
         </section>
 
@@ -811,14 +807,19 @@
 
                     <!-- TAB 3: MANAGE PRODUCTS -->
                     <div id="sellerProductsView" class="admin-tab-section" style="display: none;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; gap:0.5rem; flex-wrap:wrap;">
                             <span style="font-weight:700; font-size:0.95rem; color:var(--dark);">Katalog Aktif di Database Supabase:</span>
-                            <button class="checkout-btn" id="addNewProductBtn" style="width:auto; padding:0.5rem 1rem; font-size:0.85rem; margin:0;">
-                                ➕ Tambah Sayur Baru
-                            </button>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="checkout-btn" id="addNewCategoryBtn" style="width:auto; padding:0.5rem 1rem; font-size:0.85rem; margin:0; background:var(--gray-200); color:var(--dark); border:1px solid var(--gray-300);">
+                                    ➕ Tambah Kategori
+                                </button>
+                                <button class="checkout-btn" id="addNewProductBtn" style="width:auto; padding:0.5rem 1rem; font-size:0.85rem; margin:0;">
+                                    ➕ Tambah Sayur Baru
+                                </button>
+                            </div>
                         </div>
-                        <div id="sellerProductsList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem; padding-bottom:2rem;">
-                            <!-- Injected by JS -->
+                        <div id="sellerProductsList" style="display:flex; flex-direction:column; gap:1rem; padding-bottom:2rem;">
+                            <!-- Di-render dinamis dengan layout Accordion Kategori -->
                         </div>
                     </div>
 
@@ -1046,10 +1047,7 @@
                     <div class="form-group">
                         <label class="form-label" for="editProdCategory">Kategori</label>
                         <select id="editProdCategory" class="form-input" style="height: auto;" required>
-                            <option value="daun">🥬 Sayur Daun</option>
-                            <option value="buah">🍅 Sayur Buah</option>
-                            <option value="bumbu">🧄 Bumbu & Rempah</option>
-                            <option value="sembako">🌾 Sembako & Pelengkap</option>
+                            <!-- Di-render secara dinamis oleh JS -->
                         </select>
                     </div>
 
@@ -1089,10 +1087,60 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="checkout-btn" style="margin-top:1.5rem;">Simpan Perubahan ke Google Sheets</button>
+                    <button type="submit" class="checkout-btn" style="margin-top:1.5rem;">Simpan Produk</button>
                 </form>
             </div>
         </div>
+    </div>
+
+    <!-- Sub-Modal: Add Category Form -->
+    <div class="modal-overlay" id="categoryFormModal" style="z-index: 6600;">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 class="cart-title" id="categoryFormTitle">➕ Tambah Kategori Baru</h2>
+                <button class="close-btn" id="closeCategoryFormBtn">
+                    <svg fill="none" stroke="currentColor" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryAddForm" onsubmit="event.preventDefault();">
+                    <div class="form-group">
+                        <label class="form-label" for="newCategoryName">Nama Kategori</label>
+                        <input type="text" id="newCategoryName" class="form-input" required placeholder="Contoh: Sayur Umbi">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newCategoryCode">Kode Kategori (ID unik, huruf kecil)</label>
+                        <input type="text" id="newCategoryCode" class="form-input" required placeholder="Contoh: umbi">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newCategoryIcon">Emoji / Ikon Kategori</label>
+                        <input type="text" id="newCategoryIcon" class="form-input" required placeholder="Contoh: 🥔">
+                    </div>
+                    <!-- SUPABASE STORAGE IMAGE UPLOAD OPTION FOR CATEGORY BANNER -->
+                    <div class="form-group" style="background:#f0fdf4; padding:0.75rem; border-radius:var(--border-radius-sm); border:1.5px dashed var(--primary); margin-bottom:1rem;">
+                        <label class="form-label" style="color:var(--primary-dark); display:flex; justify-content:space-between; align-items:center;">
+                            <span>📁 Unggah Banner Kategori (Opsional)</span>
+                        </label>
+                        <input type="file" id="newCategoryImageFile" accept="image/*" class="form-input" style="padding:0.35rem; font-size:0.85rem; background:var(--white);">
+                        <span id="categoryUploadStatusText" style="font-size:0.75rem; color:var(--gray-500); display:block; margin-top:0.25rem;">Pilih foto banner kategori untuk diunggah otomatis ke Storage.</span>
+                    </div>
+                    <input type="hidden" id="newCategoryImageLink">
+                    <button type="submit" class="checkout-btn" style="margin-top:1rem;">Simpan Kategori Baru</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Bar for Bulk Moves -->
+    <div class="floating-action-bar" id="bulkMoveActionBar">
+        <span class="floating-action-bar-text" id="bulkMoveSelectedText">0 produk terpilih</span>
+        <select class="floating-action-bar-select" id="bulkMoveTargetCategory">
+            <!-- Di-render dinamis oleh JS -->
+        </select>
+        <button class="floating-action-bar-btn" id="confirmBulkMoveBtn">Pindahkan Kategori</button>
+        <button class="floating-action-bar-close" id="cancelBulkMoveBtn">&times;</button>
     </div>
 
     <!-- Footnotes/Footer -->
@@ -1163,6 +1211,7 @@
     <script src="js/seller-auth.js"></script>        <!-- login, logout, navigasi tab admin -->
     <script src="js/seller-orders.js"></script>      <!-- load/filter/update pesanan admin -->
     <script src="js/seller-products.js"></script>    <!-- CRUD produk, upload gambar -->
+    <script src="js/seller-categories.js"></script>  <!-- CRUD kategori, upload banner -->
     <script src="js/seller-settings.js"></script>    <!-- pengaturan toko, voucher, QRIS upload -->
 
     <!-- Events & Init (harus di-load TERAKHIR) -->
