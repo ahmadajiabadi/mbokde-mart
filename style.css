@@ -101,10 +101,11 @@ body.dark-mode header {
     color: var(--accent);
 }
 
-.logo svg {
-    width: 28px;
-    height: 28px;
-    fill: var(--primary);
+.logo img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .search-bar {
